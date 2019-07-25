@@ -1,0 +1,13 @@
+Meta
+doc
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+lmg.Rproj
+*.swp
+inst/doc
+*.Rproj
+*.html
+
+
