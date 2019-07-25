@@ -8,7 +8,7 @@ het Landelijk Meetnet Grondwater. Met deze dataset is een voorbeeld
 rapportage opgesteld zie `vignette(TODO)`
 
 Een handleiding van dit pakket is opgenomen als vignette, zie
-`vignette(TODO)`
+`vignette(handleiding_trendanalyse)`
 
 
 
