@@ -7,6 +7,7 @@
 #' 
 #' @param i put/filter naam waarvoor de statistiek berekend wordt
 #' @param x data.frame van lmgsubset
+#' @param dw drempelwaarde van relevante stof per relevant grondwaterlichaam
 #' @param trim als TRUE, dan worden uitbijters verwijderd (trimmed)
 #' @param trimFactor factor van \code{rmoutlier}
 #' @param psig significanctie niveau
@@ -20,21 +21,22 @@
 #' @export
 
 
-mktrends <- function(i,x,trim=FALSE,trimfactor=1.5,
-                       psig=0.05,alter="two.sided",
-                      make.plot=FALSE ) {
+mktrends <- function(i, x , dw, trim = FALSE, trimfactor = 1.5,
+                     psig = 0.05, alter = "two.sided",
+                      make.plot = FALSE ) {
   
     param <- x$parameter[1]
     # subset d, only interested in time serie, i.e. jr and
     # concentration
-    d <- x %>% select(putfilter,meetjaar,waarde) %>%
-        mutate(jr=meetjaar-min(meetjaar)) %>%
+    d <- x %>% select(putfilter, meetjaar, waarde, detectielimiet) %>%
+        mutate(jr = meetjaar - min(meetjaar)) %>%
         arrange(jr) %>%
-        filter(putfilter==i)
+        filter(putfilter == i)
+    
     d <- na.omit(d)
 
-    # if less than 3 data points, then reject
-    if(nrow(d)<3) {
+    # wijs de reeks af als er minder dan 4 waarnemingen (waarde > RG) zijn 
+    if(nrow(d[d$detectielimiet < 1, ]) < 4) {
         return(NA)
     }
 
@@ -72,19 +74,34 @@ mktrends <- function(i,x,trim=FALSE,trimfactor=1.5,
 
     if(make.plot) {
         # make plot
-
-        p <- ggplot(d, aes(jr, waarde))
-        p <- p + geom_line(color="grey")
+        
+        d <- d %>% mutate(detectielimiet = ifelse(detectielimiet == 1, "< RG", "waarneming"))
+      
+        p <- ggplot(d, aes(jr, waarde, color = detectielimiet))
+        p <- p + geom_line(colour = "grey")
         p <- p + geom_point()
+        p <- p + geom_hline(aes(yintercept = dw, colour = "drempelwaarde"),
+                            linetype = "dashed", size = 0.3) 
+        p <- p + geom_hline(aes(yintercept = 0.75 * dw, colour = "75% drempelwaarde"),
+                            linetype = "dashed", size = 0.3)
         p <- p + theme(legend.position = "none", 
                        axis.text.x = element_text(angle = 90, hjust = 1))
-        p <- p + scale_x_continuous(breaks=d$jr,labels=d$meetjaar)
-        p <- p + labs(x="Jaar", y= paste("Concentratie", param, " [mg/l]"))
+        p <- p + scale_x_continuous(breaks = d$jr, labels = d$meetjaar)
+        p <- p + labs(x = "Jaar", y = paste("Concentratie", param, " [mg/l]"),
+                      title = paste("Trend in filter ", i))
+        p <- p + theme(plot.title = element_text(hjust = 0.5),
+                       legend.position = "bottom")
+        p <- p + scale_color_manual(name = "", values = c(`< RG` = "red", waarneming = "black",
+                                                          drempelwaarde = "red", `75% drempelwaarde` = "orange"))
+#        p <- p + scale_fill_discrete(name = "", labels = c("75% drempelwaarde", "waarneming", 
+#                                                           "drempelwaarde", "< RG"))
+        
+        
 
-        if(res$p<=psig) {
+        if(res$p <= psig) {
             p <- p + geom_abline(intercept = res$intercept,
-                                 slope=res$slope,
-                                 color="red")
+                                 slope = res$slope,
+                                 color = "red")
         }
         return(p)
 
