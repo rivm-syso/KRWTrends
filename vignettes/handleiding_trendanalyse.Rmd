@@ -76,7 +76,7 @@ ycoord | y-coordinaat, in meters volgens RD | numeriek
 meetjaar | jaar van meting | numeriek
 diepte | aanduiding diepte | karakter
 parameter | naam van stof of parameter | karakter
-detectielimiet | geeft aan of een waarde onder de detectielimiet ligt | karakter
+detectielimiet | geeft aan of een waarde onder de detectielimiet ligt (1) of erboven (0) | karakter
 waarde | gemeten waarden | numeriek
 eenheid | eenheid van gemeten waarde | karakter
 verwijder | markeer reeks voor verwijdering, 0 of >0 | numeriek
@@ -160,11 +160,15 @@ detectielimiet. Hiervoor wordt de waarde van 0.5 opgegeven aan de
 
 ```{r}
 
-d <- grondwaterdata %>% 
-    filter(parameter=="no3",diepte=="ondiep") %>%
-    mutate(waarde=replaceNegative(waarde,replaceval=.5))
+devtools::load_all()
 
-figuur <- mktrends("213f1",d,make.plot=TRUE)
+d <- grondwaterdata %>% 
+    filter(parameter=="no3", diepte=="ondiep") %>%
+    mutate(waarde = replaceNegative(waarde, replaceval = 0.5))
+
+dw <- dw(param = d$parameter[1], gwl = "NLGW0001")
+
+figuur <- mktrends("213f1", d, dw = dw, make.plot = TRUE)
 print(figuur)
 ```
 
