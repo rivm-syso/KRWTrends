@@ -15,15 +15,15 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
-# load this package
+# Laad KRWTrends pakket
 # eerst installeren met devtools::install()
-#devtools::load_all()
-library(tidyverse)
-library(KRWTrends)
-library(maps)
-library(sf)
-library(ggmap)
-library(ggspatial)
+devtools::load_all()
+
+# Laad benodigde packages
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(tidyverse, maps, sf, ggmap, 
+               ggspatial)
+
 ```
 
 ## Introductie
@@ -70,15 +70,16 @@ gegevens in de volgende velden staan:
 
 veldnaam | inhoud| type
 ---------|-------|-----
-putfilter|identificatie put & filter | karakter
-xcoord|x-coordinaat, in meters volgens RD|numeriek
-ycoord|y-coordinaat, in meters volgens RD|numeriek
-meetjaar|jaar van meting| numeriek
-diepte| aanduiding diepte| karakter
-parameter|naam van stof of parameter| karakter
-waarde| gemten waarden| numeriek
-eenheid| eenheid van gemeten waarde|karakter
-verwijder|markeer reeks voor verwijdering, 0 of >0| numeriek
+putfilter | identificatie put & filter | karakter
+xcoord | x-coordinaat, in meters volgens RD | numeriek
+ycoord | y-coordinaat, in meters volgens RD | numeriek
+meetjaar | jaar van meting | numeriek
+diepte | aanduiding diepte | karakter
+parameter | naam van stof of parameter | karakter
+detectielimiet | geeft aan of een waarde onder de detectielimiet ligt | karakter
+waarde | gemeten waarden | numeriek
+eenheid | eenheid van gemeten waarde | karakter
+verwijder | markeer reeks voor verwijdering, 0 of >0 | numeriek
 
 *putfilter* is de naam, of de code, van de put en filter waarop de
 metingen van toepassing zijn
