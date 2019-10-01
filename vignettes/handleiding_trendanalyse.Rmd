@@ -127,7 +127,7 @@ krijgen.
 
 
 ```{r}
-x<-getgwl()
+x <- getgwl()
 print(x)
 ```
 
@@ -137,7 +137,7 @@ Bepaal de drempelwaarden voor een grondwaterlichaam en stof met de funtie `dw()`
 
 
 ```{r}
-dw(param="no3",gwl="NLGW0001")
+dw(param = "no3", gwl = "NLGW0001")
 ```
 
 ### *Help functies*
@@ -163,7 +163,7 @@ detectielimiet. Hiervoor wordt de waarde van 0.5 opgegeven aan de
 devtools::load_all()
 
 d <- grondwaterdata %>% 
-    filter(parameter=="no3", diepte=="ondiep") %>%
+    filter(parameter == "no3", diepte == "ondiep") %>%
     mutate(waarde = replaceNegative(waarde, replaceval = 0.5))
 
 dw <- dw(param = d$parameter[1], gwl = "NLGW0001")
@@ -183,10 +183,12 @@ gebruikt worden
 ```{r}
 
 d <- grondwaterdata %>% 
-    filter(parameter=="no3",diepte=="ondiep") %>%
-    mutate(waarde=replaceNegative(waarde,replaceval=0))
+    filter(parameter == "no3", diepte == "ondiep") %>%
+    mutate(waarde = replaceNegative(waarde, replaceval = 0))
 
-figuur <- mktrends("213f1",d,make.plot=TRUE)
+dw <- dw(param = d$parameter[1], gwl = "NLGW0001")
+
+figuur <- mktrends("213f1", d, dw = dw, make.plot = TRUE)
 print(figuur)
 ```
 
@@ -196,10 +198,10 @@ De waarde kan ook als weggelaten worden door deze te vervangen met NA
 
 
 d <- grondwaterdata %>% 
-    filter(parameter=="no3",diepte=="ondiep") %>%
-    mutate(waarde=replaceNegative(waarde,replaceval=NA))
+    filter(parameter == "no3", diepte == "ondiep") %>%
+    mutate(waarde = replaceNegative(waarde, replaceval = NA))
 
-figuur <- mktrends("213f1",d,make.plot=TRUE)
+figuur <- mktrends("213f1", d, make.plot = TRUE)
 print(figuur)
 ```
 
@@ -217,11 +219,11 @@ afkomstig van het grondwaterlichaam NLGW0003, toetsen van de data gaat als volgt
 ```{r}
 # selecteer no3, vervang rapportagegrens met 0.5 * RG
 d <- grondwaterdata %>% 
-    filter(parameter=="no3",diepte=="ondiep") %>%
-    mutate(waarde=replaceNegative(waarde,replaceval=.5))
+    filter(parameter == "no3", diepte == "ondiep") %>%
+    mutate(waarde = replaceNegative(waarde, replaceval = 0.5))
 
 # voorbeelddata is afkomstig van grondwaterlichaam NLGW0003
-resultaat<-toetsNormoverschrijding(d,"NLGW0003")
+resultaat<-toetsNormoverschrijding(d, "NLGW0003")
 
 knitr::kable(resultaat)
 ```
@@ -233,14 +235,14 @@ tegelijk getoetst worden:
 
 ```{r}
 resultaat <- data.frame()
-for (i in c("no3","as")) {
+for (i in c("no3", "as")) {
 
     d <- grondwaterdata %>% 
-        filter(parameter==i,diepte=="ondiep") %>%
-        mutate(waarde=replaceNegative(waarde,replaceval=.5))
+        filter(parameter == i, diepte == "ondiep") %>%
+        mutate(waarde = replaceNegative(waarde, replaceval = 0.5))
     resultaat <- resultaat %>%
-        bind_rows(data.frame(param=i,toetsNormoverschrijding(d,"NLGW0003"),
-                             stringsAsFactors=FALSE))
+        bind_rows(data.frame(param = i, toetsNormoverschrijding(d, "NLGW0003"),
+                             stringsAsFactors = FALSE))
 
 }
 knitr::kable(resultaat, digits = 2)
@@ -278,7 +280,7 @@ Onderstaand script kan gebruikt worden om Tabel 2 uit de werkwijze in te vullen:
 # Selecteer één parameter om maar één meetronde mee te nemen, 
 # voor meerdere parameters worden er extra bemonsteringen geteld
 d <- grondwaterdata %>% 
-    filter(parameter=="no3") %>%
+    filter(parameter == "no3") %>%
     droplevels()
 
 # Histogram met basic R
@@ -376,23 +378,23 @@ knitr::kable(head(resultaat))
 ```{r}
 
 d <- grondwaterdata %>% 
-    filter(parameter=="no3",diepte=="ondiep")
+    filter(parameter == "no3", diepte == "ondiep")
     
-resultaat <- toetsStatistiek(d,"NLGW0003")
+resultaat <- toetsStatistiek(d, "NLGW0003")
                              
 knitr::kable(resultaat, digits = 2)
 
 
 # Voor meerdere stoffen
 resultaat <- data.frame()
-for (i in c("no3","as")) {
+for (i in c("no3", "as")) {
 
     d <- grondwaterdata %>% 
-        filter(parameter==i,diepte=="ondiep")
+        filter(parameter == i, diepte == "ondiep")
     
     resultaat <- resultaat %>%
-        bind_rows(data.frame(param=i,toetsStatistiek(d,"NLGW0003"),
-                             stringsAsFactors=FALSE))
+        bind_rows(data.frame(param = i, toetsStatistiek(d, "NLGW0003"),
+                             stringsAsFactors = FALSE))
 
 }
 knitr::kable(resultaat, digits = 2)
@@ -509,14 +511,17 @@ methode. De functie wordt als volgt gebruikt:
 ```{r}
 
 d <- grondwaterdata %>% 
-    filter(parameter=="no3",diepte=="ondiep") %>%
-    mutate(waarde=replaceNegative(waarde,replaceval=.5))
+    filter(parameter == "no3", diepte == "ondiep") %>%
+    mutate(waarde = replaceNegative(waarde, replaceval = 0.5))
 
-statistiek <- mktrends("5f1",d,make.plot=FALSE)
-figuur <- mktrends("5f1",d,make.plot=TRUE)
+dw <- dw(param = d$parameter[1], gwl = "NLGW0001")
+
+statistiek <- mktrends("5f1", d, make.plot = FALSE)
+figuur <- mktrends("5f1", d, dw = dw, make.plot = TRUE)
 
 print(statistiek)
 print(figuur)
+
 ```
 
 ### 4.b Correctie voor 'vals positieven'
@@ -542,13 +547,13 @@ code wordt de functie gebruikt:
 
 # selecteer data uit ondiepe filters voor NO3
 d <- grondwaterdata %>% 
-    filter(parameter=="no3",diepte=="ondiep") %>%
-    mutate(waarde=replaceNegative(waarde,replaceval=.5))
+    filter(parameter == "no3", diepte == "ondiep") %>%
+    mutate(waarde = replaceNegative(waarde, replaceval = 0.5))
 
 # Bereken de Mann-Kendall statistieken voor alle put locaties
 i <- as.character(unique(d$putfilter))
-res2  <- lapply(i,FUN=mktrends,d) %>%
-    do.call("rbind",args=.) %>%
+res2  <- lapply(i, FUN = mktrends, d) %>%
+    do.call("rbind", args = .) %>%
     na.omit()
 
 # Bereken de false discovery rate voor alle locaties
@@ -588,8 +593,8 @@ gebruiken we de volgende code:
 ```{r}
 
 d <- grondwaterdata %>% 
-    filter(parameter=="no3",diepte=="ondiep") %>%
-    mutate(waarde=replaceNegative(waarde,replaceval=.5))
+    filter(parameter == "no3", diepte == "ondiep") %>%
+    mutate(waarde = replaceNegative(waarde, replaceval = 0.5))
 
 resultaat <- trendAnalyse(d)
 knitr::kable(resultaat, digits = 2)
@@ -601,14 +606,14 @@ for-loop gebruikt worden:
 
 ```{r}
 resultaat <- data.frame()
-for (i in c("no3","as")) {
+for (i in c("no3", "as")) {
 
     d <- grondwaterdata %>% 
-        filter(parameter==i,diepte=="ondiep") %>%
-        mutate(waarde=replaceNegative(waarde,replaceval=.5))
+        filter(parameter == i, diepte == "ondiep") %>%
+        mutate(waarde = replaceNegative(waarde, replaceval = 0.5))
     resultaat <- resultaat %>%
-        bind_rows(data.frame(param=i,trendAnalyse(d),
-                             stringsAsFactors=FALSE))
+        bind_rows(data.frame(param = i, trendAnalyse(d),
+                             stringsAsFactors = FALSE))
 
 }
 knitr::kable(resultaat, digits = 2)
@@ -657,22 +662,26 @@ dat de trend niet significant is (pas dan wordt deze geplot).
 
 # Rapportagegrens gelijk aan 0,5 RG
 d <- grondwaterdata %>% 
-    filter(parameter=="as",diepte=="ondiep") %>%
-    mutate(waarde=replaceNegative(waarde,replaceval=.5))
+    filter(parameter == "as", diepte == "ondiep") %>%
+    mutate(waarde = replaceNegative(waarde, replaceval = 0.5))
 
-statistiek0.5 <- mktrends("17f1",d,make.plot=FALSE)
-figuur0.5 <- mktrends("17f1",d,make.plot=TRUE)
+dw <- dw(param = d$parameter[1], gwl = "NLGW0001")
+
+statistiek0.5 <- mktrends("17f1", d, make.plot = FALSE)
+figuur0.5 <- mktrends("17f1", d, dw = dw, make.plot = TRUE)
 
 print(statistiek0.5)
 print(figuur0.5)
 
 # Rapportagegrens gelijk aan 0
 d <- grondwaterdata %>% 
-    filter(parameter=="as",diepte=="ondiep") %>%
-    mutate(waarde=replaceNegative(waarde,replaceval=0))
+    filter(parameter == "as", diepte == "ondiep") %>%
+    mutate(waarde = replaceNegative(waarde, replaceval = 0))
 
-statistiek0 <- mktrends("17f1",d,make.plot=FALSE)
-figuur0 <- mktrends("17f1",d,make.plot=TRUE)
+dw <- dw(param = d$parameter[1], gwl = "NLGW0001")
+
+statistiek0 <- mktrends("17f1", d, make.plot = FALSE)
+figuur0 <- mktrends("17f1", d, dw = dw, make.plot = TRUE)
 
 print(statistiek0)
 print(figuur0)
@@ -721,7 +730,7 @@ d <- grondwaterdata %>%
     distinct(putfilter, .keep_all = TRUE)
 
 
-pts <- st_as_sf(d, coords = c("xcoord", "ycoord"), crs=28992) %>% select(waarde)
+pts <- st_as_sf(d, coords = c("xcoord", "ycoord"), crs = 28992) %>% select(waarde)
 
 p <- basemap()
 p <- p + geom_sf(data = pts) 
@@ -753,10 +762,10 @@ Met de volgende code kan de trendomkering bepaalt worden:
 ```{r}
 
 d <- grondwaterdata %>% 
-    filter(parameter=="no3",diepte=="ondiep") %>%
-    mutate(waarde=replaceNegative(waarde,replaceval=.5))
+    filter(parameter == "no3", diepte == "ondiep") %>%
+    mutate(waarde = replaceNegative(waarde, replaceval = 0.5))
 
-statistiek <- trendReversal("213f1",d,trim=FALSE,make.plot=FALSE)
+statistiek <- trendReversal("213f1", d, trim = FALSE, make.plot = FALSE)
 
 knitr::kable(statistiek)
 
@@ -774,11 +783,13 @@ Middels onderstaande code kan de trendomkering gevisualiseerd worden:
 ```{r}
 
 d <- grondwaterdata %>% 
-    filter(parameter=="no3",diepte=="ondiep") %>%
-    mutate(waarde=replaceNegative(waarde,replaceval=.5))
+    filter(parameter == "no3", diepte == "ondiep") %>%
+    mutate(waarde = replaceNegative(waarde, replaceval = 0.5))
 
-statistiek <- trendReversal("213f1",d,trim=FALSE,make.plot=FALSE)
-figuur <- trendReversal("213f1",d,trim=FALSE,make.plot=TRUE)
+dw <- dw(param = d$parameter[1], gwl = "NLGW0001")
+
+statistiek <- trendReversal("213f1", d, trim = FALSE, make.plot = FALSE)
+figuur <- trendReversal("213f1", d, dw = dw, trim = FALSE, make.plot = TRUE)
 
 print(statistiek)
 print(figuur)
@@ -798,9 +809,8 @@ gebruiken we de volgende code:
 ```{r}
 
 d <- grondwaterdata %>% 
-    filter(parameter=="no3",diepte=="ondiep") %>%
-    mutate(waarde=replaceNegative(waarde,replaceval=.5))
-
+    filter(parameter == "no3", diepte == "ondiep") %>%
+    mutate(waarde = replaceNegative(waarde, replaceval = 0.5))
 
 resultaat <- trendomkeringAnalyse(d)
 
@@ -814,16 +824,16 @@ net als bij de trendanalyse een for-loop gebruikt worden:
 ```{r}
 
 resultaat <- data.frame()
-for (i in c("no3","as")) {
+for (i in c("no3", "as")) {
 
     d <- grondwaterdata %>% 
-        filter(parameter==i,diepte=="ondiep") %>%
-        mutate(waarde=replaceNegative(waarde,replaceval=.5))
+        filter(parameter == i, diepte == "ondiep") %>%
+        mutate(waarde = replaceNegative(waarde, replaceval = 0.5))
     resultaat <- resultaat %>%
-        bind_rows(data.frame(param=i,trendomkeringAnalyse(d),
-                             stringsAsFactors=FALSE))
-
+        bind_rows(data.frame(param = i, trendomkeringAnalyse(d),
+                             stringsAsFactors = FALSE))
 }
+
 knitr::kable(resultaat, digits = 2)
 ```
 
