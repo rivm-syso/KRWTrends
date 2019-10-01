@@ -9,7 +9,7 @@ valideParameters <- function() {
 testKolommen <- function(d) {
     # test of verplichte kolommen aanwezig zijn
     
-    kolommen_numeriek <- c("xcoord","ycoord","meetjaar","waarde")
+    kolommen_numeriek <- c("xcoord", "ycoord", "meetjaar", "waarde", "detectielimiet", "verwijder")
     kolommen <- c("putfilter","diepte","parameter",kolommen_numeriek)
     if(length(setdiff(kolommen,names(d)))>0) {
         stop("kolommen ontbreken of worden niet herkend")
