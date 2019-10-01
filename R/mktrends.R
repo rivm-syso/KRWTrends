@@ -92,11 +92,8 @@ mktrends <- function(i, x , dw, trim = FALSE, trimfactor = 1.5,
         p <- p + theme(plot.title = element_text(hjust = 0.5),
                        legend.position = "bottom")
         p <- p + scale_color_manual(name = "", values = c(`< RG` = "red", waarneming = "black",
-                                                          drempelwaarde = "red", `75% drempelwaarde` = "orange"))
-#        p <- p + scale_fill_discrete(name = "", labels = c("75% drempelwaarde", "waarneming", 
-#                                                           "drempelwaarde", "< RG"))
-        
-        
+                                                          drempelwaarde = "red", `75% drempelwaarde` = "orange"),
+                                    breaks = c("< RG", "waarneming", "75% drempelwaarde", "drempelwaarde"))
 
         if(res$p <= psig) {
             p <- p + geom_abline(intercept = res$intercept,
