@@ -4,7 +4,7 @@
 #' detectielimiet te vervangen.
 #' 
 #' Deze functie vervangt waardes onder de detectielimiet. Deze 
-#' waardes zijn gecodeerd als in de kolom detectielimiet door 1.
+#' waardes zijn gecodeerd door 1 in de detectielimiet kolom.
 #' Om de detectielimet te vervangen voor de helft van de
 #' oorspronkelijke waarde moet de vermenigvuldigingsfactor 0,5 zijn.
 #' 
