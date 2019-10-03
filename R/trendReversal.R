@@ -53,7 +53,7 @@
 
 
 #trendReversal <- function(series,make.plot){
-trendReversal <- function(i, x, dw, trim = FALSE, 
+trendReversal <- function(i, x, dw, trim = FALSE, rpDL = TRUE,
                           trimfactor = 1.5, make.plot = FALSE) {
 
 
@@ -69,7 +69,10 @@ trendReversal <- function(i, x, dw, trim = FALSE,
     }
 
     series <- na.omit(d)
-
+    
+    if(rpDL) {
+      d <- d %>% replaceDL() 
+    }
 # 
 #     names(series) <- c("Jaar","Waarde")
 #     series <- na.omit(series)
