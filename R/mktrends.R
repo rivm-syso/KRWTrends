@@ -25,6 +25,8 @@ mktrends <- function(i, x , dw, trim = FALSE, trimfactor = 1.5,
                      psig = 0.05, alter = "two.sided",
                       make.plot = FALSE ) {
   
+    d <- d %>% replaceDL()  
+  
     param <- x$parameter[1]
     # subset d, only interested in time serie, i.e. jr and
     # concentration
@@ -80,10 +82,10 @@ mktrends <- function(i, x , dw, trim = FALSE, trimfactor = 1.5,
         p <- ggplot(d, aes(jr, waarde, colour = detectielimiet))
         p <- p + geom_line(colour = "grey")
         p <- p + geom_point()
-        p <- p + geom_hline(aes(yintercept = dw, colour = "drempelwaarde"),
-                            linetype = "dashed", size = 0.3) 
-        p <- p + geom_hline(aes(yintercept = 0.75 * dw, colour = "75% drempelwaarde"),
-                            linetype = "dashed", size = 0.3)
+#        p <- p + geom_hline(aes(yintercept = dw, colour = "drempelwaarde"),
+#                            linetype = "dashed", size = 0.3) 
+#        p <- p + geom_hline(aes(yintercept = 0.75 * dw, colour = "75% drempelwaarde"),
+#                            linetype = "dashed", size = 0.3)
         p <- p + theme(legend.position = "none", 
                        axis.text.x = element_text(angle = 90, hjust = 1))
         p <- p + scale_x_continuous(breaks = d$jr, labels = d$meetjaar)
