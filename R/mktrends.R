@@ -25,8 +25,6 @@ mktrends <- function(i, x , dw, trim = FALSE, trimfactor = 1.5,
                      psig = 0.05, alter = "two.sided",
                       make.plot = FALSE ) {
   
-    d <- d %>% replaceDL()  
-  
     param <- x$parameter[1]
     # subset d, only interested in time serie, i.e. jr and
     # concentration
@@ -36,7 +34,8 @@ mktrends <- function(i, x , dw, trim = FALSE, trimfactor = 1.5,
         filter(putfilter == i)
     
     d <- na.omit(d)
-
+    d <- d %>% replaceDL() 
+    
     # wijs de reeks af als er minder dan 4 waarnemingen (waarde > RG) zijn 
     if(nrow(d[d$detectielimiet < 1, ]) < 4) {
         return(NA)
