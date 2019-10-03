@@ -53,18 +53,19 @@
 
 
 #trendReversal <- function(series,make.plot){
-trendReversal <- function(i,x,trim=FALSE,trimfactor=1.5,
-                          make.plot=FALSE) {
+trendReversal <- function(i, x, dw, trim = FALSE, 
+                          trimfactor = 1.5, make.plot = FALSE) {
 
 
     param <- x$parameter[1]
-    d <- x %>% filter(putfilter==i) %>%
-        select(Jaar=meetjaar,Waarde=waarde)
+    d <- x %>% filter(putfilter == i) %>%
+        select(Jaar = meetjaar, Waarde = waarde, 
+               putfilter, detectielimiet)
 
     if(trim) {
         d <- mutate(d,
-                    waarde=rmoutlier(d[["Waarde"]],factor=trimfactor,
-                                     na.rm=TRUE))
+                    waarde = rmoutlier(d[["Waarde"]], factor = trimfactor,
+                                     na.rm = TRUE))
     }
 
     series <- na.omit(d)
@@ -76,62 +77,81 @@ trendReversal <- function(i,x,trim=FALSE,trimfactor=1.5,
     min.no.years <- 5
     Years <- sort(unique(series$Jaar))
         
-    output <- data.frame(turning.point=NA,slope.1=NA,slope.2=NA,intercept.1=NA,intercept.2=NA,p=1)
+    output <- data.frame(turning.point = NA, slope.1 = NA, slope.2 = NA, 
+                         intercept.1 = NA, intercept.2 = NA, p = 1)
     p <- NA
 
-    if(length(Years)>=min.no.years*2) {
+    if(length(Years) >= min.no.years * 2) {
 
         permissible.range <- Years[(min.no.years):(length(Years)-min.no.years)]
 
         results.Theil.Sen <- as.data.frame(t(sapply(permissible.range,apply.Theil.Sen,series)))
-        names(results.Theil.Sen) <- c("Jaar","slope.1","slope.2","intercept.1","intercept.2","RSS")
-        results.Theil.Sen <- transform(results.Theil.Sen,discordant.slopes=sign(slope.1*slope.2))
+        names(results.Theil.Sen) <- c("Jaar", "slope.1", "slope.2", "intercept.1", "intercept.2", "RSS")
+        results.Theil.Sen <- transform(results.Theil.Sen,discordant.slopes = sign(slope.1 * slope.2))
         results.Theil.Sen 
 
-        best.Theil.Sen <- subset(results.Theil.Sen,discordant.slopes<0)
+        best.Theil.Sen <- subset(results.Theil.Sen,discordant.slopes < 0)
         minimum.RSS <- suppressWarnings(min(best.Theil.Sen$RSS))
-        best.Theil.Sen <- subset(best.Theil.Sen,RSS<=minimum.RSS)[1,]; rownames(best.Theil.Sen) <- NULL
+        best.Theil.Sen <- subset(best.Theil.Sen,RSS <= minimum.RSS)[1,]; rownames(best.Theil.Sen) <- NULL
         best.Theil.Sen  
         turning.point <- as.numeric(best.Theil.Sen[1])
 
-        quadratic.model <- lm(Waarde~Jaar+I(Jaar^2),data=series)
+        quadratic.model <- lm(Waarde~Jaar+I(Jaar^2), data = series)
         fitted.values <- fitted(quadratic.model)
         quadratic.model <- summary(quadratic.model)     
         estimates.of.quadratic.model <- coef(quadratic.model)[,1]  
-        other.turning.point <- as.numeric(-0.5*estimates.of.quadratic.model[2]/estimates.of.quadratic.model[3])
+        other.turning.point <- as.numeric(-0.5 * estimates.of.quadratic.model[2] / estimates.of.quadratic.model[3])
 
-        P.value.reversal <- quadratic.model$coefficients[3,4]
+        P.value.reversal <- quadratic.model$coefficients[3, 4]
         range.of.years <- range(series$Jaar)
 
-        if(any(results.Theil.Sen$discordant.slopes<0) & other.turning.point>=min(permissible.range) & 
+        if(any(results.Theil.Sen$discordant.slopes < 0) & other.turning.point>=min(permissible.range) & 
            other.turning.point<=max(permissible.range)){
 
             if(!make.plot){
-                output <- transform(best.Theil.Sen[1:5],p=P.value.reversal)
+                output <- transform(best.Theil.Sen[1:5],p = P.value.reversal)
 
                 names(output)[1] <- "turning.point"
             } else {
 
-
-                p <- ggplot(data=series,aes(x=Jaar,y=Waarde)) +
+                series <- series %>% mutate(detectielimiet = ifelse(detectielimiet == 1, "< RG", "waarneming"))
+                
+                p <- ggplot(data = series, aes(x = Jaar, y = Waarde, color = detectielimiet)) +
                     geom_line(color = "grey") +
                     geom_point() +
-                    geom_line(aes(x=Jaar, 
-                                  y=estimates.of.quadratic.model[1]+
-                                      estimates.of.quadratic.model[2]*series$Jaar+
-                                      estimates.of.quadratic.model[3]*(series$Jaar^2)),color="black")
-                    aux.x.axis <- series$Jaar[series$Jaar<=turning.point]
-                    aux.y.axis <- best.Theil.Sen$intercept.1+best.Theil.Sen$slope.1*aux.x.axis
-                    d <- data.frame(x=aux.x.axis,y=aux.y.axis)
-                    p <- p + geom_line(aes(x,y),data=d,
-                                      color=ifelse(best.Theil.Sen$slope.1<0,"blue","red"))
-                    aux.x.axis <- series$Jaar[series$Jaar>=turning.point]
-                    aux.y.axis <- best.Theil.Sen$intercept.2+best.Theil.Sen$slope.2*aux.x.axis
-                    d <- data.frame(x=aux.x.axis,y=aux.y.axis)
-                    p <- p + geom_line(aes(x,y),data=d,
-                                      color=ifelse(best.Theil.Sen$slope.2<0,"blue","red"))
-                    p <- p + geom_vline(aes(xintercept=turning.point),color="grey")
-                    p <- p + labs(x = "Jaar", y = paste("Concentratie", param, " [mg/]"))
+                    geom_hline(aes(yintercept = dw, color = "drempelwaarde"),
+                               linetype = "dashed", size = 0.3) +
+                    geom_hline(aes(yintercept = 0.75 * dw, color = "75% drempelwaarde"),
+                               linetype = "dashed", size = 0.3) +
+                    geom_line(aes(x = Jaar, 
+                                  y = estimates.of.quadratic.model[1] +
+                                      estimates.of.quadratic.model[2] * series$Jaar +
+                                      estimates.of.quadratic.model[3] * (series$Jaar^2)), color = "black") +
+                    theme(legend.position = "none",
+                          axis.text.x = element_text(angle = 90, hjust = 1)) +
+                    scale_x_continuous(breaks = series$Jaar, labels = series$Jaar) +
+                    labs(x = "Jaar", y = paste("Concentratie", param, " [mg/]"),
+                       title = paste("Trendomkering in filter ", i)) +
+                    theme(plot.title = element_text(hjust = 0.5),
+                        legend.position = "bottom") 
+                    
+                    aux.x.axis <- series$Jaar[series$Jaar <= turning.point]
+                    aux.y.axis <- best.Theil.Sen$intercept.1 + best.Theil.Sen$slope.1 * aux.x.axis
+                    d <- data.frame(x = aux.x.axis, y = aux.y.axis)
+                    
+                    p <- p + geom_line(aes(x, y), data = d,
+                                      color = ifelse(best.Theil.Sen$slope.1 < 0, "blue", "red"))
+                    
+                    aux.x.axis <- series$Jaar[series$Jaar >= turning.point]
+                    aux.y.axis <- best.Theil.Sen$intercept.2 + best.Theil.Sen$slope.2 * aux.x.axis
+                    d <- data.frame(x = aux.x.axis, y = aux.y.axis)
+                    
+                    p <- p + geom_line(aes(x,y), data = d,
+                                      color = ifelse(best.Theil.Sen$slope.2 < 0, "blue", "red"))
+                    p <- p + geom_vline(aes(xintercept = turning.point), color = "grey")
+                    p <- p + scale_color_manual(name = "", values = c(`< RG` = "red", waarneming = "black",
+                                                                      drempelwaarde = "red", `75% drempelwaarde` = "orange"),
+                                                breaks = c("< RG", "waarneming", "75% drempelwaarde", "drempelwaarde"))
                     output <- p
             } 
         }
