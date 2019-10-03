@@ -77,7 +77,7 @@ mktrends <- function(i, x , dw, trim = FALSE, trimfactor = 1.5,
         
         d <- d %>% mutate(detectielimiet = ifelse(detectielimiet == 1, "< RG", "waarneming"))
       
-        p <- ggplot(d, aes(jr, waarde, color = detectielimiet))
+        p <- ggplot(d, aes(jr, waarde, colour = detectielimiet))
         p <- p + geom_line(colour = "grey")
         p <- p + geom_point()
         p <- p + geom_hline(aes(yintercept = dw, colour = "drempelwaarde"),
