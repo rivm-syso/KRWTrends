@@ -22,12 +22,12 @@
 replaceDL <- function(d, replaceval = 0.5) {
   
   # Check of er maar één reeks wordt ingevoerd om de DG aan te passen
-  if(unique(d$putfilter) > 1){
+  if(length(unique(d$putfilter)) > 1){
     stop("de reeks bevat meerdere putfilters,
          maar mag er maar 1 bevatten")
   }
 
-  if(unique(d$parameter) > 1){
+  if(length(unique(d$parameter)) > 1){
     stop("de reeks bevat meerdere parameters, 
          maar mag er maar 1 bevatten")
   }
