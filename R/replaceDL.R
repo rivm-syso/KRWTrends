@@ -19,7 +19,7 @@
 #'
 #' @export
 
-replaceNegative <- function(d, replaceval = 0.5) {
+replaceDL <- function(d, replaceval = 0.5) {
   
   # Check of er maar één reeks wordt ingevoerd om de DG aan te passen
   if(unique(d$putfilter) > 1){
