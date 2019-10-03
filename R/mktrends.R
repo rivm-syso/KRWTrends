@@ -12,6 +12,7 @@
 #' @param trimFactor factor van \code{rmoutlier}
 #' @param psig significanctie niveau
 #' @param alter alternatieve hypothese van \code{kendatTrendTest}
+#' @param rpDL of de rapportagegrenzen aangepast moeten worden, standaard op TRUE.
 #' @param make.plot geeft een plot output in plaats van een data.frame
 #'
 #' @return data.frame met statistiek of een plot object (als #' make.plot=TRUE)
@@ -22,8 +23,8 @@
 
 
 mktrends <- function(i, x , dw, trim = FALSE, trimfactor = 1.5,
-                     psig = 0.05, alter = "two.sided",
-                      make.plot = FALSE ) {
+                     psig = 0.05, alter = "two.sided", 
+                     rpDL = TRUE, make.plot = FALSE ) {
   
     param <- x$parameter[1]
     # subset d, only interested in time serie, i.e. jr and
@@ -34,7 +35,10 @@ mktrends <- function(i, x , dw, trim = FALSE, trimfactor = 1.5,
         filter(putfilter == i)
     
     d <- na.omit(d)
+    
+    if(rpDL) {
     d <- d %>% replaceDL() 
+    }
     
     # wijs de reeks af als er minder dan 4 waarnemingen (waarde > RG) zijn 
     if(nrow(d[d$detectielimiet < 1, ]) < 4) {
@@ -83,7 +87,7 @@ mktrends <- function(i, x , dw, trim = FALSE, trimfactor = 1.5,
         p <- p + geom_point()
 #        p <- p + geom_hline(aes(yintercept = dw, colour = "drempelwaarde"),
 #                            linetype = "dashed", size = 0.3) 
-#        p <- p + geom_hline(aes(yintercept = 0.75 * dw, colour = "75% drempelwaarde"),
+#       p <- p + geom_hline(aes(yintercept = 0.75 * dw, colour = "75% drempelwaarde"),
 #                            linetype = "dashed", size = 0.3)
         p <- p + theme(legend.position = "none", 
                        axis.text.x = element_text(angle = 90, hjust = 1))
