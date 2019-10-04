@@ -150,65 +150,36 @@ verplichte kolommen aanwezig zijn.
 
 ### *Detectielimieten*
 
-Gemeten concentraties beneden de detectielimiet worden in data
-gecodeerd met negatieve waarden. Met de functie `replaceNegative`
-kunnen deze negatieve waarden vervangen worden door andere waarden
-zoals 0.5 maal de detectielimiet, 0 of met een missing value.
-Hieronder staan drie voorbeelden.
+Gemeten concentraties beneden de detectielimiet worden in de 
+kolom detectielimiet aangegeven met een 1. Binnen een reeks (
+dat wil zeggen, binnen één filter met één parameter) worden de
+rapportagegrenzen welke lager dan de laagste waarneming (>RG) 
+liggen, vervangen door 0,5 * de maximale RG onder de laagste
+waarneming. De rapportagegrenzen welke boven de laagste 
+waarneming liggen houden de waarde van de rapportagegrens zelf. 
+Dit gebeurt met de functie `replaceDL` op reeks niveau.
 
-De detectielimiet kan vervangen worden door de helft van de
-detectielimiet. Hiervoor wordt de waarde van 0.5 opgegeven aan de
-`replaceNegative` functie.
+Deze functie wordt aangeroepen binnen de `mktrends` functie en
+staat standaard aan, maar kan ook uitgezet worden. Zie onderstaand:
 
 ```{r}
 
 devtools::load_all()
 
 d <- grondwaterdata %>% 
-    filter(parameter == "no3", diepte == "ondiep") %>%
-    mutate(waarde = replaceNegative(waarde, replaceval = 0.5))
+    filter(parameter == "no3", diepte == "ondiep") 
 
 dw <- dw(param = d$parameter[1], gwl = "NLGW0001")
 
+# Pas RG niet aan
+figuur <- mktrends("213f1", d, dw = dw, rpDL = FALSE, make.plot = TRUE)
+print(figuur)
+
+# Pas RG wel aan
 figuur <- mktrends("213f1", d, dw = dw, make.plot = TRUE)
 print(figuur)
+
 ```
-
-Ook andere waarden zijn mogelijk. Bijvoorbeeld de waarde 0.7 als men
-een log-normale verdeling verondersteld of een waarde van 1 als men de
-detectielimiet als meetwaarde wil gebruiken.
-
-Voor het op nul stellen van de detectielimiet kan de waarde 0
-gebruikt worden
-
-
-```{r}
-
-d <- grondwaterdata %>% 
-    filter(parameter == "no3", diepte == "ondiep") %>%
-    mutate(waarde = replaceNegative(waarde, replaceval = 0))
-
-dw <- dw(param = d$parameter[1], gwl = "NLGW0001")
-
-figuur <- mktrends("213f1", d, dw = dw, make.plot = TRUE)
-print(figuur)
-```
-
-De waarde kan ook als weggelaten worden door deze te vervangen met NA
-
-```{r}
-
-
-d <- grondwaterdata %>% 
-    filter(parameter == "no3", diepte == "ondiep") %>%
-    mutate(waarde = replaceNegative(waarde, replaceval = NA))
-
-dw <- dw(param = d$parameter[1], gwl = "NLGW0001")
-
-figuur <- mktrends("213f1", d, dw = dw, make.plot = TRUE)
-print(figuur)
-```
-
 
 ### Toets normoverschrijding
 
@@ -223,8 +194,8 @@ afkomstig van het grondwaterlichaam NLGW0003, toetsen van de data gaat als volgt
 ```{r}
 # selecteer no3, vervang rapportagegrens met 0.5 * RG
 d <- grondwaterdata %>% 
-    filter(parameter == "no3", diepte == "ondiep") %>%
-    mutate(waarde = replaceNegative(waarde, replaceval = 0.5))
+    filter(parameter == "no3", diepte == "ondiep") 
+
 
 # voorbeelddata is afkomstig van grondwaterlichaam NLGW0003
 resultaat<-toetsNormoverschrijding(d, "NLGW0003")
@@ -515,8 +486,7 @@ methode. De functie wordt als volgt gebruikt:
 ```{r}
 
 d <- grondwaterdata %>% 
-    filter(parameter == "no3", diepte == "ondiep") %>%
-    mutate(waarde = replaceNegative(waarde, replaceval = 0.5))
+    filter(parameter == "no3", diepte == "ondiep")
 
 dw <- dw(param = d$parameter[1], gwl = "NLGW0001")
 
@@ -551,8 +521,7 @@ code wordt de functie gebruikt:
 
 # selecteer data uit ondiepe filters voor NO3
 d <- grondwaterdata %>% 
-    filter(parameter == "no3", diepte == "ondiep") %>%
-    mutate(waarde = replaceNegative(waarde, replaceval = 0.5))
+    filter(parameter == "no3", diepte == "ondiep") 
 
 # Bereken de Mann-Kendall statistieken voor alle put locaties
 i <- as.character(unique(d$putfilter))
@@ -597,8 +566,7 @@ gebruiken we de volgende code:
 ```{r}
 
 d <- grondwaterdata %>% 
-    filter(parameter == "no3", diepte == "ondiep") %>%
-    mutate(waarde = replaceNegative(waarde, replaceval = 0.5))
+    filter(parameter == "no3", diepte == "ondiep") 
 
 resultaat <- trendAnalyse(d)
 knitr::kable(resultaat, digits = 2)
@@ -613,8 +581,7 @@ resultaat <- data.frame()
 for (i in c("no3", "as")) {
 
     d <- grondwaterdata %>% 
-        filter(parameter == i, diepte == "ondiep") %>%
-        mutate(waarde = replaceNegative(waarde, replaceval = 0.5))
+        filter(parameter == i, diepte == "ondiep") 
     resultaat <- resultaat %>%
         bind_rows(data.frame(param = i, trendAnalyse(d),
                              stringsAsFactors = FALSE))
@@ -766,8 +733,7 @@ Met de volgende code kan de trendomkering bepaalt worden:
 ```{r}
 
 d <- grondwaterdata %>% 
-    filter(parameter == "no3", diepte == "ondiep") %>%
-    mutate(waarde = replaceNegative(waarde, replaceval = 0.5))
+    filter(parameter == "no3", diepte == "ondiep") 
 
 statistiek <- trendReversal("213f1", d, trim = FALSE, make.plot = FALSE)
 
