@@ -27,7 +27,7 @@
 #'
 
 
-toetsStatistiek <- function(d,gwl) {
+toetsStatistiek <- function(d, gwl) {
 
     param <- d$parameter[1]
 
@@ -38,10 +38,10 @@ toetsStatistiek <- function(d,gwl) {
                   n = n(),
                   P50 = median(waarde),
                   P95 = quantile(waarde, 0.95),
-                  perc.RG = round(nrow(d[d$waarde<0,]) / n() * 100, digits=1),
-                  RG.min = max(waarde[waarde<0]) * -1,
-                  RG.max = min(waarde) * -1,
-                  norm = dw(param,gwl)
+                  perc.RG = round(nrow(d[d$detectielimiet > 0,]) / n() * 100, digits = 1),
+                  RG.min = min(waarde[detectielimiet > 0]),
+                  RG.max = max(waarde[detectielimiet > 0]),
+                  norm = dw(param, gwl)
                   ) 
 }
 
