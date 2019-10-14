@@ -24,6 +24,8 @@ res2  <- lapply(i,FUN=mktrends,d) %>%
     do.call("rbind",args=.) %>%
     na.omit()
 
+if(nrow(res2) > 0) {
+
 fdr <- res2 %>% select(p) %>% bhfdr()
 n.total <- nrow(res2)
 
@@ -62,6 +64,10 @@ d.trend <- bind_rows(d.trend1,d.trend2,d.trend3) %>%
     mutate(direction=ifelse(is.na(direction),"op/neer",direction)) %>%
     mutate(statistiek=paste(trend,direction)) %>%
     select(statistiek,n,percentage,gemiddeld.helling)
+
+} else {
+  d.trend <- NA
+}
 
 return(d.trend)
 
