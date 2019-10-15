@@ -38,7 +38,8 @@ d.trend1 <- res2 %>%
     group_by(trend, direction) %>%
     summarise(n = n(),
               percentage = n() / n.total,
-              gemiddeld.helling = mean((slope))) %>%
+              gemiddeld.helling = mean((slope)),
+              putfilters = paste(sort(unique(putfilter)), collapse = ", ")) %>%
     ungroup
 
 # samenvatting benoemde trends, totaal op en neerwaartse richting
@@ -48,7 +49,8 @@ d.trend2  <- res2 %>%
     group_by(trend) %>%
     summarise(n = n(),
               percentage = n() / n.total,
-              gemiddeld.helling = mean((slope))) %>%
+              gemiddeld.helling = mean((slope)),
+              putfilters = paste(sort(unique(putfilter)), collapse = ", ")) %>%
     ungroup 
 
 
@@ -59,13 +61,14 @@ d.trend3  <- res2 %>%
     group_by(trend) %>%
     summarise(n = n(),
               percentage = n() / n.total,
-              gemiddeld.helling = mean((slope))) %>%
+              gemiddeld.helling = mean((slope)),
+              putfilters = paste(sort(unique(putfilter)), collapse = ", ")) %>%
     ungroup 
 
 d.trend <- bind_rows(d.trend1, d.trend2, d.trend3) %>%
     mutate(direction = ifelse(is.na(direction), "op/neer" ,direction)) %>%
     mutate(statistiek = paste(trend, direction)) %>%
-    select(statistiek, n, percentage, gemiddeld.helling)
+    select(statistiek, n, percentage, gemiddeld.helling, putfilters)
 
 }
 } else {
