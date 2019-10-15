@@ -48,8 +48,8 @@ mktrends <- function(i, x , dw, trim = FALSE, trimfactor = 1.5,
     # remove outliers
     if(trim) {
         d <- mutate(d,
-                    waarde=rmoutlier(d[["Waarde"]],factor=trimfactor,
-                                     na.rm=TRUE))
+                    waarde=rmoutlier(d[["Waarde"]], factor = trimfactor,
+                                     na.rm = TRUE))
     }
 
     # remove NA values, order by year and create time series
@@ -59,23 +59,24 @@ mktrends <- function(i, x , dw, trim = FALSE, trimfactor = 1.5,
 
     # do Mann-Kendall test
     n <- nrow(d)
-    d.mk <- EnvStats::kendallTrendTest(waarde~jr,data=d,alternative=alter)
+    d.mk <- EnvStats::kendallTrendTest(waarde~jr, data = d, alternative = alter)
 
     # create data.frame with results, also add description of result
     # (significant trend / no trend and direction of trend)
 
-    res <- data.frame(putfilter=i,S=d.mk$S,
-                      var=d.mk$var.S,
-                      n=n,
-                      p=d.mk$p.value,
-                      tau=d.mk$estimate[1],
-                      slope=d.mk$estimate[2],
-                      intercept=d.mk$estimate[3],
-                      slopeLCL=d.mk$interval$limits[1],
-                      slopeUCL=d.mk$interval$limits[2],
-                      trend=(ifelse(d.mk$p.value<=psig,"trend","geen trend")),
-                      direction=(ifelse(d.mk$S<=0,"neerwaarts","opwaarts")),
-                      stringsAsFactors=FALSE,row.names=i)
+    res <- data.frame(putfilter = i,
+                      S = d.mk$S,
+                      var = d.mk$var.S,
+                      n = n,
+                      p = d.mk$p.value,
+                      tau = d.mk$estimate[1],
+                      slope = d.mk$estimate[2],
+                      intercept = d.mk$estimate[3],
+                      slopeLCL = d.mk$interval$limits[1],
+                      slopeUCL = d.mk$interval$limits[2],
+                      trend = (ifelse(d.mk$p.value <= psig, "trend", "geen trend")),
+                      direction = (ifelse(d.mk$S <= 0, "neerwaarts", "opwaarts")),
+                      stringsAsFactors = FALSE, row.names = i)
 
     if(make.plot) {
         # make plot
