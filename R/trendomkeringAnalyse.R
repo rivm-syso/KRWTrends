@@ -22,6 +22,8 @@
 
 trendomkeringAnalyse  <- function(d,sig=0.05) {
 
+    if(nrow(d) > 0) { 
+  
     if(length(unique(d$parameter))!=1) {
         stop("Er mag slechts 1 parameter in dataset aanwezig zijn")
     }
@@ -77,5 +79,6 @@ trendomkeringAnalyse  <- function(d,sig=0.05) {
 
     return(trend.sum)
 
+    }
 }
 
