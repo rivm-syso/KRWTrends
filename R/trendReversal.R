@@ -59,12 +59,12 @@ trendReversal <- function(i, x, dw, trim = FALSE, rpDL = TRUE,
 
     param <- x$parameter[1]
     d <- x %>% filter(putfilter == i) %>%
-        select(Jaar = meetjaar, Waarde = waarde, 
+        select(Jaar = meetjaar, waarde = waarde, 
                putfilter, detectielimiet)
 
     if(trim) {
         d <- mutate(d,
-                    waarde = rmoutlier(d[["Waarde"]], factor = trimfactor,
+                    waarde = rmoutlier(d[["waarde"]], factor = trimfactor,
                                      na.rm = TRUE))
     }
 
@@ -74,7 +74,7 @@ trendReversal <- function(i, x, dw, trim = FALSE, rpDL = TRUE,
       d <- d %>% replaceDL() 
     }
 # 
-#     names(series) <- c("Jaar","Waarde")
+#     names(series) <- c("Jaar","waarde")
 #     series <- na.omit(series)
 # 
     min.no.years <- 5
@@ -99,7 +99,7 @@ trendReversal <- function(i, x, dw, trim = FALSE, rpDL = TRUE,
         best.Theil.Sen  
         turning.point <- as.numeric(best.Theil.Sen[1])
 
-        quadratic.model <- lm(Waarde~Jaar+I(Jaar^2), data = series)
+        quadratic.model <- lm(waarde~Jaar+I(Jaar^2), data = series)
         fitted.values <- fitted(quadratic.model)
         quadratic.model <- summary(quadratic.model)     
         estimates.of.quadratic.model <- coef(quadratic.model)[,1]  
@@ -119,7 +119,7 @@ trendReversal <- function(i, x, dw, trim = FALSE, rpDL = TRUE,
 
                 series <- series %>% mutate(detectielimiet = ifelse(detectielimiet == 1, "< RG", "waarneming"))
                 
-                p <- ggplot(data = series, aes(x = Jaar, y = Waarde, color = detectielimiet)) +
+                p <- ggplot(data = series, aes(x = Jaar, y = waarde, color = detectielimiet)) +
                     geom_line(color = "grey") +
                     geom_point() +
                     geom_hline(aes(yintercept = dw, color = "drempelwaarde"),
