@@ -86,10 +86,8 @@ mktrends <- function(i, x , dw, trim = FALSE, trimfactor = 1.5,
         p <- ggplot(d, aes(jr, waarde, colour = detectielimiet))
         p <- p + geom_line(colour = "grey")
         p <- p + geom_point()
-#        p <- p + geom_hline(aes(yintercept = dw, colour = "drempelwaarde"),
-#                            linetype = "dashed", size = 0.3) 
-#       p <- p + geom_hline(aes(yintercept = 0.75 * dw, colour = "75% drempelwaarde"),
-#                            linetype = "dashed", size = 0.3)
+        p <- p + geom_hline(aes(yintercept = dw, linetype = "drempelwaarde"), colour = "red") 
+       p <- p + geom_hline(aes(yintercept = 0.75 * dw, linetype = "75% drempelwaarde"), colour = "orange")
         p <- p + theme(legend.position = "none", 
                        axis.text.x = element_text(angle = 90, hjust = 1))
         p <- p + scale_x_continuous(breaks = d$jr, labels = d$meetjaar)
@@ -97,9 +95,9 @@ mktrends <- function(i, x , dw, trim = FALSE, trimfactor = 1.5,
                       title = paste("Trend in filter ", i))
         p <- p + theme(plot.title = element_text(hjust = 0.5),
                        legend.position = "bottom")
-        p <- p + scale_color_manual(name = "", values = c(`< RG` = "red", waarneming = "black",
-                                                          drempelwaarde = "red", `75% drempelwaarde` = "orange"),
-                                    breaks = c("< RG", "waarneming", "75% drempelwaarde", "drempelwaarde"))
+        p <- p + scale_color_manual(name = "", values = c(`< RG` = "red", waarneming = "black"))
+        p <- p + scale_linetype_manual(name = "", values = c(2, 2),
+                                       guide = guide_legend(override.aes = list(color = c("orange", "red"))))
 
         if(res$p <= psig) {
             p <- p + geom_abline(intercept = res$intercept,
