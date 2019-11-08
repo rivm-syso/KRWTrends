@@ -81,7 +81,7 @@ trendReversal <- function(i, x, dw, trim = FALSE, rpDL = TRUE,
     Years <- sort(unique(series$Jaar))
         
     output <- data.frame(turning.point = NA, slope.1 = NA, slope.2 = NA, 
-                         intercept.1 = NA, intercept.2 = NA, p = 1)
+                         intercept.1 = NA, intercept.2 = NA, p = 1, putfilter = i)
     p <- NA
 
     if(length(Years) >= min.no.years * 2) {
@@ -112,7 +112,7 @@ trendReversal <- function(i, x, dw, trim = FALSE, rpDL = TRUE,
            other.turning.point<=max(permissible.range)){
 
             if(!make.plot){
-                output <- transform(best.Theil.Sen[1:5],p = P.value.reversal)
+                output <- transform(best.Theil.Sen[1:5],p = P.value.reversal, putfilter = i)
 
                 names(output)[1] <- "turning.point"
             } else {
@@ -122,10 +122,10 @@ trendReversal <- function(i, x, dw, trim = FALSE, rpDL = TRUE,
                 p <- ggplot(data = series, aes(x = Jaar, y = waarde, color = detectielimiet)) +
                     geom_line(color = "grey") +
                     geom_point() +
-                    geom_hline(aes(yintercept = dw, color = "drempelwaarde"),
-                               linetype = "dashed", size = 0.3) +
-                    geom_hline(aes(yintercept = 0.75 * dw, color = "75% drempelwaarde"),
-                               linetype = "dashed", size = 0.3) +
+#                    geom_hline(aes(yintercept = dw, color = "drempelwaarde"),
+#                               linetype = "dashed", size = 0.3) +
+#                    geom_hline(aes(yintercept = 0.75 * dw, color = "75% drempelwaarde"),
+#                               linetype = "dashed", size = 0.3) +
                     geom_line(aes(x = Jaar, 
                                   y = estimates.of.quadratic.model[1] +
                                       estimates.of.quadratic.model[2] * series$Jaar +
