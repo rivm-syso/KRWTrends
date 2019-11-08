@@ -72,7 +72,8 @@ trendomkeringAnalyse  <- function(d,sig=0.05) {
                   gem.richting1 = mean(slope.1),
                   gem.richting2 = mean(slope.2),
                   jaar = mean(turning.point),
-                  jaar.sd = sd(turning.point)
+                  jaar.sd = sd(turning.point),
+                  putfilters = paste(sort(unique(putfilter)), collapse = ", ")
                   )
         
 
