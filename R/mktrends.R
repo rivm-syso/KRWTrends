@@ -87,7 +87,7 @@ mktrends <- function(i, x , dw, trim = FALSE, trimfactor = 1.5,
         p <- p + geom_line(colour = "grey")
         p <- p + geom_point()
         p <- p + geom_hline(aes(yintercept = dw, linetype = "drempelwaarde"), colour = "red") 
-       p <- p + geom_hline(aes(yintercept = 0.75 * dw, linetype = "75% drempelwaarde"), colour = "orange")
+        p <- p + geom_hline(aes(yintercept = 0.75 * dw, linetype = "75% drempelwaarde"), colour = "orange")
         p <- p + theme(legend.position = "none", 
                        axis.text.x = element_text(angle = 90, hjust = 1))
         p <- p + scale_x_continuous(breaks = d$jr, labels = d$meetjaar)
