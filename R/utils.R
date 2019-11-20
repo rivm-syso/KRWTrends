@@ -46,7 +46,7 @@ testRanges <- function(d) {
         stop("enkele meetjaren ontbreken")
     }
 
-    if(min(d$meetjaar)<1998||max(d$meetjaar)>lubridate::year(lubridate::now())) {
+    if(min(d$meetjaar)<1990||max(d$meetjaar)>lubridate::year(lubridate::now())) {
         stop("meetjaar buiten bereik")
     }
 
