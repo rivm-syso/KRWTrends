@@ -43,7 +43,7 @@ en benodigde rapportage staat beschreven in het document
 Voor de trendanalyse wordt gebruik gemaakt van het door het RIVM opgestelde R-pakket '*KRWTrends*'. 
 Dit pakket bestaat uit functies voor de analyse van trends en trendomkering in grondwater, specifiek
 voor het opstellen van de trendrapportages die provincies moeten opstellen voor de KRW. Daarnaast
-zijn functies voor het ophalen van drempelwaardes en de grondwaterlichamen. In de stappen van de
+zijn er functies voor het ophalen van drempelwaardes en de grondwaterlichamen. In de stappen van de
 KRW trendanalyse worden de functies van *KRWTrends* toegelicht. Voorbeelden worden gegeven aan 
 de hand van een dataset selectie uit het Landelijk Meetnet Grondwaterkwaliteit (LMG). 
 
@@ -57,9 +57,7 @@ is dat de kwaliteit van de data op orde is. De selectie vindt op de volgende man
   a) selecteer alle KMG putten in een grondwaterlichaam;
   b) selecteer alle ondiepe en diepe putfilters (volgens KMG aanduiding);
   c) selecteer de EU-relevante stoffen (NO3, Cd, Pb, Ni, P, Cl, As);
-  d) selecteer alle waarnemingen over de periode 1998-2018. Indien deze periode niet 
-  10 waarnemingen bevat, verleng de periode dan tot bijvoorbeeld 30 jaar. Voer de
-  trendanalyse uit voor zowel 20 als 30 jaar;
+  d) selecteer alle waarnemingen over de periode 1998-2018; 
   e) herdefinieer detectieteken "<" als 1 en geen detectieteken als 0.
   
 In de achtergrondrapportage dient bovenstaande dataselectie te worden beschreven en 
@@ -79,13 +77,14 @@ parameter | naam van stof of parameter | karakter
 detectielimiet | geeft aan of een waarde onder de detectielimiet ligt (1) of erboven (0) | karakter
 waarde | gemeten waarden | numeriek
 eenheid | eenheid van gemeten waarde | karakter
+grondwaterlichaam | grondwaterlichaam identificatiecode | karakter
 verwijder | markeer reeks voor verwijdering, 0 of >0 | numeriek
 
 *putfilter* is de naam, of de code, van de put en filter waarop de
-metingen van toepassing zijn
+metingen van toepassing zijn.
 
 *xcoord,ycoord* zijn de coordinaten van de putten volgens het
-Rijksdriehoekstelsel. De coordinaten zijn gegeven in meters
+Rijksdriehoekstelsel. De coordinaten zijn gegeven in meters.
 
 *meetjaar* is het jaar van de meting. Per put & filter mag er slechts
 1 meting per meetjaar voorkomen.
@@ -95,14 +94,17 @@ Rijksdriehoekstelsel. De coordinaten zijn gegeven in meters
 
 *parameter* is de naam van de gemeten parameter of stof in kleine
 letters. Alleen de parameters cl, as, pb, no3, ni, cd en ptot zijn
-toegestaan
+toegestaan.
 
-*detectielimiet* geeft aan of een meting onder de rapportagegrens zit (1) of erboven (0)
+*detectielimiet* geeft aan of een meting onder de rapportagegrens zit (1) of erboven (0).
 
-*waarde* dit is de gemeten waarde. Alle waardes dienen positief te zijn
+*waarde* dit is de gemeten waarde. Alle waardes dienen positief te zijn.
 
 *eenheid* is de eenheid van de gemeten parameter. Deze eenheid mag per
 parameter niet verschillen.
+
+*grondwaterlichaam* geeft met een identificatiecode aan in welk grondwaterlichaam 
+het putfilter zich bevindt.
 
 *verwijder* is een veld om aan te geven welke metingen gemarkeerd
 worden. Dit veld is 0 als de stof niet gemarkeerd is, iedere waarde >0
@@ -137,9 +139,16 @@ print(x)
 
 Bepaal de drempelwaarden voor een grondwaterlichaam en stof met de funtie `dw()`.
 
-
 ```{r}
 dw(param = "no3", gwl = "NLGW0001")
+```
+
+Met deze functie kan ook een kolom met drempelwaardes worden toegevoegd op basis van 
+de parameter en het grondwaterlichaam: 
+
+```{r}
+grondwaterdata$norm <- mapply(dw, grondwaterdata$parameter, grondwaterdata$grondwaterlichaam)
+head(grondwaterdata)
 ```
 
 ### *Help functies*
