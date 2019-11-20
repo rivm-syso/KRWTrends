@@ -6,7 +6,6 @@
 #' concentratie (waarde) gedeeld door de norm.
 #'
 #' @param d tijdreeks van waarnemingen voor 1 parameter en 1 diepte
-#' @param gwl het grondwaterlichaam
 #' @param toetsnorm de relatieve norm waar tegen getoetst wordt.
 #'
 #' De normen zijn afhankelijk van het grondwaterlichaam waarvoor
@@ -31,18 +30,18 @@
 
 
 
-toetsNormoverschrijding <- function(d,gwl,toetsnorm=0.75) {
+toetsNormoverschrijding <- function(d, toetsnorm = 0.75) {
 
     testSerie(d)
     param <- d$parameter[1]
 
     n.tot <- nrow(d)
-    d %>% mutate(dwratio=waarde/dw(param,gwl)) %>%
-        filter(dwratio>toetsnorm) %>%
-        summarise(n=n(),
-                  percentage=round(n()/n.tot*100,digits=1),
-                  gem.waarde=mean(waarde),
-                  gem.ratio=mean(dwratio)
+    d %>% mutate(dwratio = waarde / norm) %>%
+        filter(dwratio > toetsnorm) %>%
+        summarise(n = n(),
+                  percentage = round(n() / n.tot * 100, digits = 1),
+                  gem.waarde = mean(waarde),
+                  gem.ratio = mean(dwratio)
                   ) 
 
 }
