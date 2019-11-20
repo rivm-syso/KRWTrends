@@ -153,7 +153,7 @@ head(grondwaterdata)
 
 ### *Help functies*
 Binnen `utils.R` staan enkele hulp functies voor de KRW trendanalyse. Deze 
-functies kunnen gebruikt worden voor het testen van de dataset en de benodigde
+functies kunnen gebruikt worden voor het testen van de dataset en of de benodigde
 data aanwezig is. Bijvoorbeeld de functie `testKolommen()` gaat na of de
 verplichte kolommen aanwezig zijn.
 
@@ -173,19 +173,17 @@ staat standaard aan, maar kan ook uitgezet worden. Zie onderstaand:
 
 ```{r}
 
-devtools::load_all()
-
 d <- grondwaterdata %>% 
     filter(parameter == "no3", diepte == "ondiep") 
 
-dw <- dw(param = d$parameter[1], gwl = "NLGW0001")
+#dw <- dw(param = d$parameter[1], gwl = "NLGW0001")
 
 # Pas RG niet aan
-figuur <- mktrends("213f1", d, dw = dw, rpDL = FALSE, make.plot = TRUE)
+figuur <- mktrends("213f1", d, rpDL = FALSE, dw.plot = FALSE, make.plot = TRUE)
 print(figuur)
 
 # Pas RG wel aan
-figuur <- mktrends("213f1", d, dw = dw, make.plot = TRUE)
+figuur <- mktrends("213f1", d, dw.plot = FALSE, make.plot = TRUE)
 print(figuur)
 
 ```
