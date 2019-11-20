@@ -7,7 +7,7 @@
 #' 
 #' @param i put/filter naam waarvoor de statistiek berekend wordt
 #' @param x data.frame van lmgsubset
-#' @param dw drempelwaarde van relevante stof per relevant grondwaterlichaam
+#' @param dw.plot geeft aan om de relevante drempelwaarde in de grafiek wordt geplot
 #' @param trim als TRUE, dan worden uitbijters verwijderd (trimmed)
 #' @param trimFactor factor van \code{rmoutlier}
 #' @param psig significanctie niveau
@@ -22,10 +22,10 @@
 #' @export
 
 
-mktrends <- function(i, x , dw, trim = FALSE, trimfactor = 1.5,
-                     psig = 0.05, alter = "two.sided", 
+mktrends <- function(i, x, trim = FALSE, trimfactor = 1.5,
+                     dw.plot = TRUE, psig = 0.05, alter = "two.sided", 
                      rpDL = TRUE, make.plot = FALSE ) {
-  
+    dw <- x$norm[1]
     param <- x$parameter[1]
     # subset d, only interested in time serie, i.e. jr and
     # concentration
@@ -86,8 +86,10 @@ mktrends <- function(i, x , dw, trim = FALSE, trimfactor = 1.5,
         p <- ggplot(d, aes(jr, waarde, colour = detectielimiet))
         p <- p + geom_line(colour = "grey")
         p <- p + geom_point()
-        p <- p + geom_hline(aes(yintercept = dw, linetype = "drempelwaarde"), colour = "red") 
-        p <- p + geom_hline(aes(yintercept = 0.75 * dw, linetype = "75% drempelwaarde"), colour = "orange")
+        if(dw.plot) {
+          p <- p + geom_hline(aes(yintercept = dw, linetype = "drempelwaarde"), colour = "red") 
+          p <- p + geom_hline(aes(yintercept = 0.75 * dw, linetype = "75% drempelwaarde"), colour = "orange")
+        }
         p <- p + theme(legend.position = "none", 
                        axis.text.x = element_text(angle = 90, hjust = 1))
         p <- p + scale_x_continuous(breaks = d$jr, labels = d$meetjaar)
