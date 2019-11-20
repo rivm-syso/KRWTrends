@@ -220,13 +220,12 @@ resultaat <- data.frame()
 for (i in c("no3", "as")) {
 
     d <- grondwaterdata %>% 
-        filter(parameter == i, diepte == "ondiep") %>%
-        mutate(waarde = replaceNegative(waarde, replaceval = 0.5))
+        filter(grondwaterlichaam == "NLGW0003", parameter == i, diepte == "ondiep") 
     resultaat <- resultaat %>%
-        bind_rows(data.frame(param = i, toetsNormoverschrijding(d, "NLGW0003"),
+        bind_rows(data.frame(param = i, toetsNormoverschrijding(d),
                              stringsAsFactors = FALSE))
-
 }
+
 knitr::kable(resultaat, digits = 2)
 ```
 
