@@ -36,7 +36,8 @@ toetsNormoverschrijding <- function(d, toetsnorm = 0.75) {
     param <- d$parameter[1]
 
     n.tot <- nrow(d)
-    d %>% mutate(dwratio = waarde / norm) %>%
+    d %>% filter(detectielimiet == 0) %>% 
+        mutate(dwratio = waarde / norm) %>%
         filter(dwratio > toetsnorm) %>%
         summarise(n = n(),
                   percentage = round(n() / n.tot * 100, digits = 1),
