@@ -168,15 +168,15 @@ waarneming. De rapportagegrenzen welke boven de laagste
 waarneming liggen houden de waarde van de rapportagegrens zelf. 
 Dit gebeurt met de functie `replaceDL` op reeks niveau.
 
-Deze functie wordt aangeroepen binnen de `mktrends` functie en
-staat standaard aan, maar kan ook uitgezet worden. Zie onderstaand:
+Deze functie wordt aangeroepen binnen de `mktrends` functie met de 
+`rpDL` parameter en staat standaard aan, maar kan ook uitgezet worden. 
+De `dw.plot` parameter wordt gebruikt om de drempelwaardes te plotten,
+en staat standaard ook aan. Zie onderstaand:
 
 ```{r}
 
 d <- grondwaterdata %>% 
     filter(parameter == "no3", diepte == "ondiep") 
-
-#dw <- dw(param = d$parameter[1], gwl = "NLGW0001")
 
 # Pas RG niet aan
 figuur <- mktrends("213f1", d, rpDL = FALSE, dw.plot = FALSE, make.plot = TRUE)
@@ -191,21 +191,21 @@ print(figuur)
 ### Toets normoverschrijding
 
 Voor het toetsten van de normoverschrijding wordt de gemeten waarde
-vergeleken met 75% van de drempelwaarde en met de drempelwaarde zelf. Dit wordt 
-gedaan met de functie `toetsNormoverschrijding` per grondwaterlichaam. Binnen 
-deze functie staat de norm standaard op 75% norm. Met het argument 
-*toetsnorm = 1* wordt deze op de drempelwaarde zelf gezet. De voorbeeld data is 
-afkomstig van het grondwaterlichaam NLGW0003, toetsen van de data gaat als volgt:
-
+vergeleken met 75% van de drempelwaarde en met de drempelwaarde zelf. Hiervoor
+worden alleen de waarde >RG gebruikt. Dit wordt gedaan met de functie 
+`toetsNormoverschrijding` per grondwaterlichaam. Binnen deze functie staat de 
+norm standaard op 75% norm. Met het argument *toetsnorm = 1* wordt deze op de 
+drempelwaarde zelf gezet. De voorbeeld data is afkomstig van het grondwaterlichaam 
+NLGW0003, toetsen van de data gaat als volgt:
 
 ```{r}
 # selecteer no3, vervang rapportagegrens met 0.5 * RG
 d <- grondwaterdata %>% 
-    filter(parameter == "no3", diepte == "ondiep") 
-
+    filter(grondwaterlichaam == "NLGW0003", 
+           parameter == "no3", diepte == "ondiep") 
 
 # voorbeelddata is afkomstig van grondwaterlichaam NLGW0003
-resultaat<-toetsNormoverschrijding(d, "NLGW0003")
+resultaat<-toetsNormoverschrijding(d)
 
 knitr::kable(resultaat)
 ```
