@@ -20,7 +20,7 @@
 #' @return een data.frame met de toets statistieken, de volgende
 #' kolommen worden gegeven:
 #'  \itemize{
-#'    \item n totaal aantal gegeven meetwaarden boven de toetsnorm
+#'    \item n totaal aantal gegeven meetwaarden (>RG) boven de toetsnorm
 #'    \item percentage percentage boven de toetsnorm
 #'    \item gem.waarde gemiddelden van waarden boven de toetsnorm
 #'    \item gem.ratio gemiddelde ratio van waarde/norm
