@@ -12,8 +12,7 @@
 #' @return een data.frame met de toets statistieken, de volgende
 #' kolommen worden gegeven:
 #'  \itemize{
-#'    \item ntot totaal aantal gegeven meetwaarden
-#'    \item n aantal gegeven meetwaarden zonder NA's
+#'    \item ntot totaal aantal gegeven meetwaarden zonder NA's
 #'    \item P50 mediaan van meetwaarden
 #'    \item P95 95ste percentiel van meetwaarden
 #'    \item perc.RG percentage meetwaarden onder de rapportagegrens (RG)
@@ -27,6 +26,8 @@
 
 
 toetsStatistiek <- function(d) {
+  
+    testSerie(d)
 
     param <- d$parameter[1]
     nrm <- d$norm[1]
