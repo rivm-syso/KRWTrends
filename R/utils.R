@@ -53,11 +53,7 @@ testRanges <- function(d) {
     if(length(setdiff(unique(d$parameter),valideParameters()))>0) {
         stop("onbekende parameters aangetroffen")
     }
-    
-    a <- d %>% group_by(parameter) %>% summarise(eenheden = length(unique(eenheid)))
-    if(any(a$eenheden) > 1) {
-      stop("parameter heeft meer dan 1 eenheid")
-    }
+
 }
 
 testData <- function(d) {
