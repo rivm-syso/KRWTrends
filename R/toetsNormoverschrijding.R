@@ -1,8 +1,9 @@
 #' Toets Normoverschrijding
 #'
 #' Deze functie berekent het percentage van de  waarnemingen met
-#' normoverschrijdingen. Het berekent ook de gemiddelde concentratie
-#' van de putten met normoverschrijdingen en de gemiddelde ratio van
+#' normoverschrijdingen. Hierbij worden alleen waardes >RG meegenomen.
+#' Het berekent ook de gemiddelde concentratie van de putten met 
+#' normoverschrijdingen en de gemiddelde ratio van 
 #' concentratie (waarde) gedeeld door de norm.
 #'
 #' @param d tijdreeks van waarnemingen voor 1 parameter en 1 diepte
