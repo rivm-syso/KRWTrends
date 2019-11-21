@@ -247,37 +247,28 @@ Voor de geselecteerde stoffen in stap 2 moet vervolgens de KMG-dataset
 worden beoordeeld op geschiktheid voor het uitvoeren van de KRW 
 trendanalyse. De belangrijkste factoren hierbij zijn 
 bemonsteringsfrequentie en rapportagegrenzen. De volgende checks dienen 
-doorlopen te worden:
+doorlopen te worden voor de ondiepe en diepe filters:
 
-  a) *overzicht bemonsteringsfrequentie* met een overzicht van de 
-  putfilters (zie document werkwijze, Tabel 2) kan de geschiktheid van 
+  a) *overzicht bemonsteringsfrequentie* met een overzicht van het aantal
+  putfilters met een x aantal bemonstering voor de ondiepe en diepe filters 
+  (zie document werkwijze, Tabel 2) kan de geschiktheid van 
   de dataset voor trendanalyse KRW beoordeeld worden. Markeer de 
   putfilters die minder dan 10x (arbitrair gekozen) zijn bemonsterd.
 
-Onderstaand script kan gebruikt worden om Tabel 2 uit de werkwijze in te vullen:
+Onderstaand script maakt een overzicht wat kan helpen bij Tabel 2 uit de
+werkwijze:
 
 ```{r fig.width = 6, fig.height = 4, fig.align = "center"}
 
 # Selecteer één parameter om maar één meetronde mee te nemen, 
 # voor meerdere parameters worden er extra bemonsteringen geteld
 d <- grondwaterdata %>% 
-    filter(parameter == "no3") %>%
+    filter(parameter == "no3", diepte == "ondiep") %>%
     droplevels()
 
-# Histogram met basic R
-d$putfilter %>% 
-  summary %>% 
-  hist(main = "Bemonsteringsfrequenties",
-       xlab = "Aantal x bemonsterd", 
-       ylab = "Aantal filters", las = 1,
-       xlim = c(5, 25),
-       ylim = c(0, 10),
-       col = "steelblue",
-       breaks = c(5:25))
-
-# Histogram met ggplot
+# Histogram 
 a <- d %>% count(putfilter) %>%
-  mutate(above = n>10)
+  mutate(above = n > 10)
 
 ggplot(a, aes(x = n, fill = above)) +
   geom_histogram(binwidth = 1,
@@ -291,7 +282,7 @@ ggplot(a, aes(x = n, fill = above)) +
   theme(legend.position = "right") +
   labs(x = "Aantal x bemonsterd", y = "Aantal filters") + 
   scale_color_manual(name = "lijn", values = c(gemiddelde = "blue", kritieke.grens = "red"))
-  
+
 ```
 
   b) *verdeling waarnemingen 1998-2018* van de reeksen van waarnemingen
@@ -359,9 +350,9 @@ knitr::kable(head(resultaat))
 ```{r}
 
 d <- grondwaterdata %>% 
-    filter(parameter == "no3", diepte == "ondiep")
+    filter(grondwaterlichaam == "NLGW0003", parameter == "no3", diepte == "ondiep")
     
-resultaat <- toetsStatistiek(d, "NLGW0003")
+resultaat <- toetsStatistiek(d)
                              
 knitr::kable(resultaat, digits = 2)
 
@@ -371,10 +362,11 @@ resultaat <- data.frame()
 for (i in c("no3", "as")) {
 
     d <- grondwaterdata %>% 
-        filter(parameter == i, diepte == "ondiep")
+        filter(grondwaterlichaam == "NLGW0003", 
+               parameter == i, diepte == "ondiep")
     
     resultaat <- resultaat %>%
-        bind_rows(data.frame(param = i, toetsStatistiek(d, "NLGW0003"),
+        bind_rows(data.frame(param = i, toetsStatistiek(d),
                              stringsAsFactors = FALSE))
 
 }
@@ -406,75 +398,74 @@ rapportagegrenzen. Dit wordt verder toegelicht in stap 4. De
 informatie in tabel 3 moet worden gebruikt bij de expert beoordeling
 van reeksen van waarnemingen in stap 4c.
 
+  d) *Selecteer de reeksen met >= 4 waarnemingen* Voor het uitvoeren
+  van de statistische toets dienen ten minste 5 metingen in een reeks
+  aanwezig te zijn. Dit betekent dat de trendanalyse alleen kan worden
+  uitgevoerd als er ten minste 4 waarnemingen (<RG) en 1 rapportagegrens
+  in een reeks zitten. Dit is een hard criterium. In deze stap worden
+  de reeksen geselecteerd die aan dit criterium voldoen. Deze reeksen
+  zijn goedgekeurd voor het uitvoeren van de statische toets (zie tabel 4).
+  De overige reeksen worden niet meegenomen. 
+
 
 ## 4: Statistische trendtoets
 
-In stap 4 wordt de statistische trendtoets uitgevoerd voor de stoffen 
-die in stap 2 zijn geselecteerd en de bijbehorende statistiek en 
-kaartbeelden verzamelt. Om inzicht te krijgen in de invloed van de 
-gemarkeerde reeksen (zie stappen 3a en b) en van de rapportagegrenzen
-(zie stap 3c) dient voor ieder grondwaterlichaam en iedere parameter
-de trendanalyse te worden uitgevoerd volgens 4 iteraties (zie tabel 4),
-die gekenmerkt zijn door verschillende criteria om met rapportagrenzen
-en 'uitbijters' om te gaan. 
+In stap 4 wordt voor de reeksen die in stap 3d zijn geselecteerd de 
+trendtoets daadwerkelijk uitgevoerd. Dit is uitsluitend voor de grondwaterlichamen
+waarin een 75% normoverschrijding is aangetroffen (zie stap 2). 
 
-In elke iteratie bestaat stap 4 uit het uitvoeren van een statistische 
-trendtoets op putfilterniveau (stap 4a), een correctie voor 'vals 
-positieven' (stap 4b), het verzamelen van de statistieken (stap 4c) en,
-indien nodig, een visuele inspectie van de reeksen en een expert beoordeling
-(stap 4d). Voordat stappen 4a-c worden toegelicht wordt eerst een toelichting
-gegeven op de 4 iteraties.
-
-### Tabel 4
-|   | Dataset              | Rapportagegrens | Verwijderen van uitbijters en/of kunstmatige reeksen |
-|:--------|:---------------------|---------:|-----------------------------:|
-|Iteratie 1 | Goedgekeurde reeksen en gemarkeerde reeksen | 0,5 * RG | Nee |
-|Iteratie 2 | Goedgekeurde reeksen en gemarkeerde reeksen | 0        | Nee |
-|Iteratie 3 | Goedgekeurde reeksen en gemarkeerde reeksen | 0,5 * RG | Ja  |
-|Iteratie 4 | Goedgekeurde reeksen                        | 0,5 * RG | Ja  |
-
+De trendtoets bestaat in stap 4 uit het uitvoeren van een statistische trendtoets
+op putfilterniveau (stap 4b), een correctie voor 'vals positieven' (stap 4c), het
+verzamelen van de statistieken (stap 4d) en, indien nodig, een visuele inspectie 
+van de reeksen en een expert beoordeling (stap 4e). Voordat deze stappen worden
+toegelicht, wordt eerst ingegaan op de invloed van rapportagegrenzen en de invloed
+van gemarkeerde reeksen. 
 
 #### *Toelichting invloed rapportagegrenzen*
-Om zicht te krijgen op de invloed van rapportagegrenzen op het resultaat
-(zie ook stap 3c) dient de trendanalyse volgens iteratie 1, 2 en 3 uit 
-Tabel 4 te worden uitgevoerd. In iteratie 1 wordt de trendtoets uitgevoerd
-op de dataset zoals deze samengesteld is in stap 1 (waarbij < 
-rapportagegrens wordt geherdefinieerd als de helft van de rapportagegrens).
-In iteratie 2 wordt de trendtoets nogmaals uitgevoerd waarbij < 
-rapportagegrens wordt geherdefinieerd als 0.
+Binnen een reeks kunnen meerdere rapportagegrenzen met verschillende 
+waarden aanwezig zijn die het trendresultaat beïnvloeden. In Bijlage 1
+van de werkwijze zijn een aantal voorbeelden gegeven van de invloed van
+rapportagegrenzen op het trendresultaat, zoals kunstmatige trends en de
+invloed van uitbijters. 
 
-Wanneer er geen verschil is tussen de resultaten van iteratie 1 en 2, dan
-hebben de rapportagegrenzen in de dataset geen invloed op het resultaat
-van de trendtoets. Verdere actie is niet nodig. Het resultaat van iteratie
-1 kan worden gebruikt. 
+Voordat de statistische toets kan worden uitgevoerd dient de dataset te worden 
+bewerkt. Binnen een reeks worden de rapportagegrenzen als volgt geherdefinieerd:
 
-Als de resultaten van iteratie 1 en 2 wel verschillen dan dienen de reeksen
-op filterniveau visueel te worden geïnspecteerd op de aanwezigheid van 
-uitbijters in de rapportagegrens of op kunstmatige trends. Op basis van een
-expert beoordeling (zie stap 4d) kunnen uitbijters en/of reeksen worden
-verwijderd. Dit leidt tot een nieuwe dataset (iteratie 3) waarop de
-trendanalyse opnieuw kan worden uitgevoerd. 
+  1) Rapportagegrenzen < alle waarnemingen (metingen >RG) binnen de reeks worden
+  geherdefinieerd als de helft van de hoogste rapportagegrens onder de 
+  laagste waarneming;
+  2) Rapportagegrenzen > een of meerdere waarnemingen binnen de reeks worden
+  geherdefinieerd als de rapportagegrens. 
+  
+Door de aanwezigheid van rapportagegrenzen die hoger zijn dan waarnemingen 
+binnen een reeks kunnen kunstmatige trends worden berekend of kan het trendresultaat
+sterk worden beïnvloed door deze rapportagegrenzen. Daarom dienen de reeksen op 
+filterniveau visueel te worden geïnspecteerd op de aanwezigheid van uitbijters in de
+rapportagegrens of op kunstmatige trends. Op basis van expert beoordeling (zie stap 4e)
+kunnen reeksen met kunstmatige trends worden benoemd als reeksen waarin geen trend 
+aanwezig is. Dit zijn de trends die in tabel 4 afvallen na visuele inspectie. 
 
 #### *Toelichting invloed van gemarkeerde reeksen*
-In het geval dat in stap 3a en/of 3b reeksen gemarkeerd zijn op basis van 
-het niet halen van de criteria dient in deze stappen te worden nagegaan
-wat de invloed is van de gemarkeerde reeksen op het resultaat van de
-trendanalyse. Hiervoor wordt de trendanalyse eerst uitgevoerd met zowel 
-de goedgekeurde als de gemarkeerde reeksen (iteratie 3 uit tabel 4). 
-Daarna wordt de trendanalyse uitgevoerd uitsluitend met de goedgekeurde 
-reeksen (iteratie 4 uit tabel 4). 
+In stap 3a, 3b en 3d worden reeksen goedgekeurd en gemarkeerd op basis 
+van het niet halen van de criteria. Het goedkeuren van reeksen wordt
+gedaan op basis van het minimaal benodigde aantal metingen voor een
+statistische toets. Dit is een hard criterium.
 
-Wanneer er geen verschil is tussen de resultaten van iteratie 3 en 4, 
-dan hebben de gemarkeerde reeksen geen invloed op het resultaat van de
-trendtoets. Het resultaat van iteratie 3 kan worden gebruikt.
+Het markeren van reeksen gebeurt op basis van arbitraire criteria. Met deze
+arbitraire criteria wordt onderscheid gemaakt in (1) reeksen waarvoor 
+mogelijk trends kunnen worden benoemd op basis van het aantal metingen en
+de verdeling in de tijd en (2) reeksen waarvoor waarschijnlijk het aantal 
+metingen niet voldoende zijn om trends te kunnen bepalen. 
 
-Als er verschillen zijn tussen de resultaten van iteratie 3 en 4, dan 
-dienen de gemarkeerde reeksen op filterniveau visueel te worden 
-geïnspecteerd. Op basis van expert beoordeling kan dan besloten worden
-reeksen te verwijderen (zie stap 4d).
+In tabel 4 wordt een overzicht gegeven van het aantal reeksen, het aantal 
+goed- en afgekeurde reeksen en de benoemde trends in de goedgekeurde reeksen.
+Hierbij wordt onderscheid gemaakt in gemarkeerde en niet-gemarkeerde reeksen.
+Deze informatie dient in stap 4 te worden gebruikt bij de interpretatie van 
+de trendresultaten en in stap 6 bij het komen tot een uitspraak op niveau 
+van een grondwaterlichaam. 
 
-Hieronder worden de stappen 4a-d, die doorlopen moeten worden volgens
-de 4 iteraties, beschreven:
+
+Hieronder worden de stappen 4a-e, die doorlopen moeten worden beschreven:
 
 ### 4.a Statistische analyse op putfilterniveau
   
