@@ -436,6 +436,8 @@ bewerkt. Binnen een reeks worden de rapportagegrenzen als volgt geherdefinieerd:
   laagste waarneming;
   2) Rapportagegrenzen > een of meerdere waarnemingen binnen de reeks worden
   geherdefinieerd als de rapportagegrens. 
+
+Hiervoor wordt gebruik gemaakt van de `replaceDL` functie, zie eerder. 
   
 Door de aanwezigheid van rapportagegrenzen die hoger zijn dan waarnemingen 
 binnen een reeks kunnen kunstmatige trends worden berekend of kan het trendresultaat
@@ -467,35 +469,39 @@ van een grondwaterlichaam.
 
 Hieronder worden de stappen 4a-e, die doorlopen moeten worden beschreven:
 
-### 4.a Statistische analyse op putfilterniveau
+### 4.a Herdefinieer de rapportagegrenzen
+Herdefinieer de rapportagegrenzen op basis van bovenstaande toelichting.
+Dit gebeurt op reeks niveau: per putfiler, per parameter. Dit kan gedaan 
+worden met de `replaceDL` functie. 
+
+### 4.b Statistische analyse op putfilterniveau
   
-De Mann-Kendall toets voor trends wordt toegepast op put-filterniveau
-om te testen of er een (stijgende en/of dalende) trend per put is. 
+De Mann-Kendall toets voor trends wordt toegepast op putfilterniveau
+om te testen of er een (stijgende en/of dalende) trend per filter is. 
 Daarmee wordt een p-waarde per put en per stof berekend (de p-waarde 
 is een getal dat aangeeft hoe waarschijnlijk het is dat een trend in
-een put aanwezig is. Hoe lager, hoe waarschijnlijker de trend.)
+een put aanwezig is. Hoe lager, hoe waarschijnlijker de trend).
 
 De functie `mktrends()` berekent de Mann-Kendall statistiek per filter
-en per parameter. Uitbijters buiten 1,5x de interkwartielafstand worden 
+en per parameter. Uitbijters buiten 1,5x de interkwartielafstand kunnen 
 binnen deze functie met `rmoutlier()` eruit gehaald volgens de Tukey 
-methode. De functie wordt als volgt gebruikt:
+methode. Dit wordt aangeroepen met parameter `trim`, welke standaard uit 
+staat. De functie wordt als volgt gebruikt:
 
 ```{r}
 
 d <- grondwaterdata %>% 
     filter(parameter == "no3", diepte == "ondiep")
 
-dw <- dw(param = d$parameter[1], gwl = "NLGW0001")
-
 statistiek <- mktrends("5f1", d, make.plot = FALSE)
-figuur <- mktrends("5f1", d, dw = dw, make.plot = TRUE)
+figuur <- mktrends("5f1", d, make.plot = TRUE)
 
 print(statistiek)
 print(figuur)
 
 ```
 
-### 4.b Correctie voor 'vals positieven'
+### 4.c Correctie voor 'vals positieven'
   
 Om van een trendanalyse op putniveau te komen tot een uitspraak op
 grondwaterlichaamniveau moet rekening gehouden worden met de kans
@@ -532,9 +538,9 @@ fdr <- res2 %>% select(p) %>% bhfdr()
 print(fdr)
 ```
 
-### 4.c Verzamelen statistieken
+### 4.d Verzamelen statistieken
   
-Na het doorlopen van stappen 4a en 4b kan een tabel worden 
+Na het doorlopen van stappen 4a-4c kan een tabel worden 
 samengesteld waarin per stof meerdere statistieken worden 
 verzameld, zoals het percentage benoemde trends (stijgend of
 dalend), het percentage benoemde stijgende trends en het 
@@ -544,20 +550,17 @@ In deze tabel wordt tevens de gemiddelde helling voor de
 verschillende (benoemde en niet benoemde) trends gegeven.
 
   
-De resultaten van de trendtoets dient voor iedere iteratie
-opgenomen te worden in tabel 5 (zie 'werkinstructie'). Na 
-het uitvoeren van de trendtoetsen volgens iteratie 1 en 2 
-vindt een visuele inspectie plaats (stap 4d), voordat de 
-toetsen volgens iteratie 3 uitgevoerd kunnen worden. Na het 
-uitvoeren van de trendtoetsen volgens iteratie 4, vindt 
-wederom een visuele inspectie plaats. 
+De resultaten van de trendtoets wordt opgenomen in tabel 5
+(zie 'werkinstructie'). Na het uitvoeren van de trendtoetsen 
+vindt een visuele inspectie op alle grafieken plaats (4e) als 
+gevolg van het vervangen van de iteraties met rapportagegrenzen. 
 
-
-De trendanalyse wordt gedaan met de functie `trendAnalyse()`. 
-Hierin zitten zowel stap 4a (Mann-Kendall trendanalyse) als 4b 
-(correctie vals-positieven), om vervolgens de statistieken te 
-verzamelen en benoemen. Om de trendanalyse voor NO3 uit te voeren 
-gebruiken we de volgende code:
+De trendanalyse wordt gedaan met de functie `trendAnalyse`. 
+Hierin zitten zowel stap 4a (aanpassen RG met `replaceDL`),
+stap 4b (Mann-Kendall trendanalyse met `mktrends`) als 4c 
+(correctie vals-positieven met `bhfd`), om vervolgens de statistieken 
+te verzamelen en benoemen. Om de trendanalyse voor NO3 uit te 
+voeren gebruiken we de volgende code:
 
 ### Trendanalyse tabel
 ```{r}
@@ -565,7 +568,10 @@ gebruiken we de volgende code:
 d <- grondwaterdata %>% 
     filter(parameter == "no3", diepte == "ondiep") 
 
-resultaat <- trendAnalyse(d)
+# Totaal aantal reeksen waarvoor trendanalyse wordt gedaan
+aantal.reeks <- paste(d$putfilter, d$parameter, sep = " - ") %>% unique %>% length()
+
+resultaat <- trendAnalyse(d, n.reeks = aantal.reeks)
 knitr::kable(resultaat, digits = 2)
 ```
 
@@ -585,17 +591,16 @@ for (i in c("no3", "as")) {
 
 }
 knitr::kable(resultaat, digits = 2)
+
 ```
 
-### 4.d Visuele inspectie van reeksen 
+### 4.e Visuele inspectie van reeksen 
   *Invloed van rapportagegrenzen*
-  
-Na het uitvoeren van de trendtoetsen volgens iteratie 1 en 2, 
-worden de reeksen op putfilterniveau visueel geïnspecteerd. 
-Door het vergelijken van de reeksen uit iteratie 1 (RG -> 0,5 
-RG) en uit iteratie 2 (RG -> 0) wordt duidelijk:
+Na het uitvoeren van de trendtoetsen worden de reeksen op
+putfilterniveau visueel geïnspecteerd. Hierdoor wordt 
+duidelijk:
 
-  1) Welke waarnemingen van de reeks rapportagegrenzen zijn;
+  1) Welke metingen in de reeks rapportagegrenzen zijn;
   2) In hoeverre een rapportagegrens een uitbijter is (zie 
   hieronder);
   3) In hoeverre een benoemde trend kunstmatig is (zie 
@@ -613,14 +618,14 @@ rapportagegrenzen'.
 Op basis van expert beoordeling kan besloten worden om 
 uitbijters in rapportagegrenzen te verwijderen. In het geval
 van een kunstmatige trend kan besloten worden om de benoemde
-trend te verwijderen. Indien dit het geval is, wordt iteratie 
-3 doorgerekend. 
+trend te verwijderen. Deze reeksen worden dan beschouwd als
+reeksen waarin geen trend aanwezig is. In 'Bijlage 1 van de 
+Werkinstructie trendanalyse algemene grondwaterkwaliteit KRW' 
+zijn een aantal voorbeelden gegeven van expert beoordeling van
+grafieken m.b.t. de invloed van rapportagegrenzen. 
 
-In 'Bijlage 1 van de Werkinstructie trendanalyse algemene 
-grondwaterkwaliteit KRW' staan 3 voorbeelden gegeven over 
-de invloed van rapportagegrenzen en expert beoordeling. 
 
-#### Voorbeeld 2
+#### Voorbeeld
 Middels onderstaand script kan voorbeeld 2 gevisualiseerd 
 worden om de invloed van uitbijters in rapportagegrenzen 
 te bekijken. De afwezigheid van een trendlijn laat zien 
@@ -628,15 +633,23 @@ dat de trend niet significant is (pas dan wordt deze geplot).
 
 ```{r}
 
-# Rapportagegrens gelijk aan 0,5 RG
+# Rapportagegrens aanpassen volgens methode
+d <- grondwaterdata %>% 
+    filter(parameter == "as", diepte == "ondiep") 
+
+statistiek <- mktrends("17f1", d, rpDL = TRUE, make.plot = FALSE)
+figuur <- mktrends("17f1", d, , rpDL = TRUE, dw.plot = FALSE, make.plot = TRUE)
+
+print(statistiek)
+print(figuur)
+
+# Rapportagegrens gelijk aan 0.5 RG
 d <- grondwaterdata %>% 
     filter(parameter == "as", diepte == "ondiep") %>%
-    mutate(waarde = replaceNegative(waarde, replaceval = 0.5))
+  mutate(waarde = ifelse(detectielimiet == 1, 0.5 * waarde, waarde))
 
-dw <- dw(param = d$parameter[1], gwl = "NLGW0001")
-
-statistiek0.5 <- mktrends("17f1", d, make.plot = FALSE)
-figuur0.5 <- mktrends("17f1", d, dw = dw, make.plot = TRUE)
+statistiek0.5 <- mktrends("17f1", d, rpDL = FALSE, make.plot = FALSE)
+figuur0.5 <- mktrends("17f1", d, rpDL = FALSE, dw.plot = FALSE, make.plot = TRUE)
 
 print(statistiek0.5)
 print(figuur0.5)
@@ -644,41 +657,24 @@ print(figuur0.5)
 # Rapportagegrens gelijk aan 0
 d <- grondwaterdata %>% 
     filter(parameter == "as", diepte == "ondiep") %>%
-    mutate(waarde = replaceNegative(waarde, replaceval = 0))
+  mutate(waarde = ifelse(detectielimiet == 1, 0, waarde))
 
-dw <- dw(param = d$parameter[1], gwl = "NLGW0001")
-
-statistiek0 <- mktrends("17f1", d, make.plot = FALSE)
-figuur0 <- mktrends("17f1", d, dw = dw, make.plot = TRUE)
+statistiek0 <- mktrends("17f1", d, rpDL = FALSE, make.plot = FALSE)
+figuur0 <- mktrends("17f1", d, rpDL = FALSE, dw.plot = FALSE, make.plot = TRUE)
 
 print(statistiek0)
 print(figuur0)
 
 ```
 
-Door het vergelijken van de figuren wordt duidelijk welke 
-waarnemingen een rapportagegrens zijn. Op basis van expert
-beoordeling kan worden geconcludeerd dat in dit voorbeeld 
-de rapportagegrenzen hoog zijn t.o.v. de waarnemingen en 
-daarnaast variëren in hoogte. In dit voorbeeld is het dus 
-nodig de uitbijters (op t=13 en 15 jaar) te verwijderen. 
-Na het verwijderen van de uitbijters is het duidelijk dat 
-er geen trend aanwezig is in deze reeks. 
 
-  *Invloed van gemarkeerde reeksen in stap 3* 
-  Na het uitvoeren van stap 4a en 4b volgens iteratie 3 en 4
-  vindt nogmaals een visuele inspectie plaats. Als de resultaten 
-  van iteratie 3 en 4 verschillen, dan dienen de gemarkeerde
-  reeksen op filterniveau visueel te worden geïnspecteerd. Op
-  basis van expert beoordeling kan besloten worden om reeksen
-  te verwijderen. 
 
 Uiteindelijk dienen de verzamelde statistieken voor de 
 betreffende trendtoetsen verwerkt te worden in Tabel 5 van de 
 '*Werkinstructie trendanalyse algemene grondwaterkwaliteit KRW*'
 
 
-### 4.e Verzamelen van kaartbeelden
+### 4.f Verzamelen van kaartbeelden
 Aangezien grondwaterlichamen een groter gebied bestrijken die niet homogeen 
 zijn m.b.t. bodemtype, hydrologie en landgebruik, kan het lastig zijn om een
 eenduidige uitspraak te doen over stijgende/dalende trends in het hele 
@@ -748,8 +744,6 @@ Middels onderstaande code kan de trendomkering gevisualiseerd worden:
 
 
 ```{r}
-
-devtools::load_all()
 
 d <- grondwaterdata %>% 
     filter(parameter == "no3", diepte == "ondiep") %>%
