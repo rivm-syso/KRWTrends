@@ -5,6 +5,7 @@
 #' De trends worden gecorrigeerd voor vals positieven.
 #'
 #' @param d data.frame met grondwaterdata
+#' @param n.reeks totaal aantal reeksen van selectie
 #'
 #' @return tabel met trendstatistieken
 #'  \itemize{
@@ -17,8 +18,12 @@
 #' @export
 
 
-trendAnalyse <- function(d) {
+trendAnalyse <- function(d, n.reeks) {
 
+  if(n.reeks < 1) {
+    return("totaal aantal reeksen onbekend om % trends te berekenen")
+  }
+  
 if(nrow(d) > 0) {  
   
 i <- as.character(unique(d$putfilter))
@@ -29,7 +34,7 @@ res2 <- lapply(i, FUN = mktrends, d) %>%
 if(nrow(res2) > 0) {
 
 fdr <- res2 %>% select(p) %>% bhfdr()
-n.total <- nrow(res2)
+n.mk <- nrow(res2)
 
 # samenvatting benoemde trends en richting
 d.trend1 <- res2 %>%
@@ -37,7 +42,7 @@ d.trend1 <- res2 %>%
     mutate(trend = "trend- benoemd") %>%
     group_by(trend, direction) %>%
     summarise(n = n(),
-              percentage = n() / n.total,
+              percentage = paste(round(n() / n.reeks, digits = 2), round(n() / n.mk, digits = 2), sep = " / " ),
               gemiddeld.helling = mean((slope)),
               putfilters = paste(sort(unique(putfilter)), collapse = ", ")) %>%
     ungroup
@@ -48,7 +53,7 @@ d.trend2  <- res2 %>%
     mutate(trend = "trend- benoemd") %>%
     group_by(trend) %>%
     summarise(n = n(),
-              percentage = n() / n.total,
+              percentage = paste(round(n() / n.reeks, digits = 2), round(n() / n.mk, digits = 2), sep = " / " ),
               gemiddeld.helling = mean((slope)),
               putfilters = paste(sort(unique(putfilter)), collapse = ", ")) %>%
     ungroup 
@@ -60,7 +65,7 @@ d.trend3  <- res2 %>%
     mutate(trend = "trend- niet benoemd") %>%
     group_by(trend) %>%
     summarise(n = n(),
-              percentage = n() / n.total,
+              percentage = paste(round(n() / n.reeks, digits = 2), round(n() / n.mk, digits = 2), sep = " / " ),
               gemiddeld.helling = mean((slope)),
               putfilters = paste(sort(unique(putfilter)), collapse = ", ")) %>%
     ungroup 
