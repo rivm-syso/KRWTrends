@@ -40,7 +40,11 @@ mktrends <- function(i, x, trim = FALSE, trimfactor = 1.5,
     d <- d %>% replaceDL() 
     }
     
-    # wijs de reeks af als er minder dan 4 waarnemingen (waarde > RG) zijn 
+    # wijs de reeks af als er minder dan 5 metingen  en minder dan 4 waarnemingen (waarde > RG) zijn 
+    if(nrow(d) < 5) {
+      return(NA)
+    }
+    
     if(nrow(d[d$detectielimiet < 1, ]) < 4) {
         return(NA)
     }
