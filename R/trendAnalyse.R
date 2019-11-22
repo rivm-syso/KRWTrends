@@ -10,7 +10,8 @@
 #' @return tabel met trendstatistieken
 #'  \itemize{
 #'    \item aantal op- en neergaande trends
-#'    \item percentage op- en neergaande trends
+#'    \item percentage op- en neergaande trends t.o.v. totaal aantal reeksen en 
+#'          t.o.v. aantal goedgekeurde reeksen.
 #'    \item gemiddelde helling van trends
 #'    \item voor benoemde als niet benoemde trends
 #' }
