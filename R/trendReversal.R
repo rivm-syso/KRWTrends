@@ -53,11 +53,13 @@
 
 
 #trendReversal <- function(series,make.plot){
-trendReversal <- function(i, x, dw, trim = FALSE, rpDL = TRUE,
-                          trimfactor = 1.5, make.plot = FALSE) {
-
-
+trendReversal <- function(i, x, trim = FALSE, rpDL = TRUE,
+                          trimfactor = 1.5, make.plot = FALSE,
+                          dw.plot = TRUE) {
+    
+    dw <- x$norm[1]
     param <- x$parameter[1]
+    
     d <- x %>% filter(putfilter == i) %>%
         select(Jaar = meetjaar, waarde = waarde, 
                putfilter, detectielimiet, eenheid)
@@ -121,13 +123,17 @@ trendReversal <- function(i, x, dw, trim = FALSE, rpDL = TRUE,
                 
                 p <- ggplot(data = series, aes(x = Jaar, y = waarde, colour = detectielimiet)) +
                     geom_line(colour = "grey") +
-                    geom_point() +
-                    geom_hline(aes(yintercept = dw, linetype = "drempelwaarde"), colour = "red") +
-                    geom_hline(aes(yintercept = 0.75 * dw, linetype = "75% drempelwaarde"), colour = "orange") +
-                    geom_line(aes(x = Jaar, 
-                                  y = estimates.of.quadratic.model[1] +
-                                      estimates.of.quadratic.model[2] * series$Jaar +
-                                      estimates.of.quadratic.model[3] * (series$Jaar^2)), color = "black") +
+                    geom_point()
+                    
+                    if(dw.plot) {
+                p <- p + geom_hline(aes(yintercept = dw, linetype = "drempelwaarde"), colour = "red") +
+                         geom_hline(aes(yintercept = 0.75 * dw, linetype = "75% drempelwaarde"), colour = "orange")
+                    }
+                
+                p <- p + geom_line(aes(x = Jaar, 
+                                       y = estimates.of.quadratic.model[1] +
+                                       estimates.of.quadratic.model[2] * series$Jaar +
+                                       estimates.of.quadratic.model[3] * (series$Jaar^2)), color = "black") +
                     theme(legend.position = "none",
                           axis.text.x = element_text(angle = 90, hjust = 1)) +
                     scale_x_continuous(breaks = series$Jaar, labels = series$Jaar) +
