@@ -25,6 +25,7 @@
 mktrends <- function(i, x, trim = FALSE, trimfactor = 1.5,
                      dw.plot = TRUE, psig = 0.05, alter = "two.sided", 
                      rpDL = TRUE, make.plot = FALSE ) {
+    
     dw <- x$norm[1]
     param <- x$parameter[1]
     # subset d, only interested in time serie, i.e. jr and
