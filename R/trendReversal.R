@@ -53,18 +53,20 @@
 
 
 #trendReversal <- function(series,make.plot){
-trendReversal <- function(i, x, dw, trim = FALSE, rpDL = TRUE,
-                          trimfactor = 1.5, make.plot = FALSE) {
-
-
+trendReversal <- function(i, x, trim = FALSE, rpDL = TRUE,
+                          trimfactor = 1.5, make.plot = FALSE,
+                          dw.plot = TRUE) {
+    
+    dw <- x$norm[1]
     param <- x$parameter[1]
+    
     d <- x %>% filter(putfilter == i) %>%
-        select(Jaar = meetjaar, Waarde = waarde, 
-               putfilter, detectielimiet)
+        select(Jaar = meetjaar, waarde = waarde, 
+               putfilter, detectielimiet, eenheid)
 
     if(trim) {
         d <- mutate(d,
-                    waarde = rmoutlier(d[["Waarde"]], factor = trimfactor,
+                    waarde = rmoutlier(d[["waarde"]], factor = trimfactor,
                                      na.rm = TRUE))
     }
 
@@ -74,14 +76,14 @@ trendReversal <- function(i, x, dw, trim = FALSE, rpDL = TRUE,
       d <- d %>% replaceDL() 
     }
 # 
-#     names(series) <- c("Jaar","Waarde")
+#     names(series) <- c("Jaar","waarde")
 #     series <- na.omit(series)
 # 
     min.no.years <- 5
     Years <- sort(unique(series$Jaar))
         
     output <- data.frame(turning.point = NA, slope.1 = NA, slope.2 = NA, 
-                         intercept.1 = NA, intercept.2 = NA, p = 1)
+                         intercept.1 = NA, intercept.2 = NA, p = 1, putfilter = i)
     p <- NA
 
     if(length(Years) >= min.no.years * 2) {
@@ -99,7 +101,7 @@ trendReversal <- function(i, x, dw, trim = FALSE, rpDL = TRUE,
         best.Theil.Sen  
         turning.point <- as.numeric(best.Theil.Sen[1])
 
-        quadratic.model <- lm(Waarde~Jaar+I(Jaar^2), data = series)
+        quadratic.model <- lm(waarde~Jaar+I(Jaar^2), data = series)
         fitted.values <- fitted(quadratic.model)
         quadratic.model <- summary(quadratic.model)     
         estimates.of.quadratic.model <- coef(quadratic.model)[,1]  
@@ -112,31 +114,33 @@ trendReversal <- function(i, x, dw, trim = FALSE, rpDL = TRUE,
            other.turning.point<=max(permissible.range)){
 
             if(!make.plot){
-                output <- transform(best.Theil.Sen[1:5],p = P.value.reversal)
+                output <- transform(best.Theil.Sen[1:5],p = P.value.reversal, putfilter = i)
 
                 names(output)[1] <- "turning.point"
             } else {
 
                 series <- series %>% mutate(detectielimiet = ifelse(detectielimiet == 1, "< RG", "waarneming"))
                 
-                p <- ggplot(data = series, aes(x = Jaar, y = Waarde, color = detectielimiet)) +
-                    geom_line(color = "grey") +
-                    geom_point() +
-                    geom_hline(aes(yintercept = dw, color = "drempelwaarde"),
-                               linetype = "dashed", size = 0.3) +
-                    geom_hline(aes(yintercept = 0.75 * dw, color = "75% drempelwaarde"),
-                               linetype = "dashed", size = 0.3) +
-                    geom_line(aes(x = Jaar, 
-                                  y = estimates.of.quadratic.model[1] +
-                                      estimates.of.quadratic.model[2] * series$Jaar +
-                                      estimates.of.quadratic.model[3] * (series$Jaar^2)), color = "black") +
+                p <- ggplot(data = series, aes(x = Jaar, y = waarde, colour = detectielimiet)) +
+                    geom_line(colour = "grey") +
+                    geom_point()
+                    
+                    if(dw.plot) {
+                p <- p + geom_hline(aes(yintercept = dw, linetype = "drempelwaarde"), colour = "red") +
+                         geom_hline(aes(yintercept = 0.75 * dw, linetype = "75% drempelwaarde"), colour = "orange")
+                    }
+                
+                p <- p + geom_line(aes(x = Jaar, 
+                                       y = estimates.of.quadratic.model[1] +
+                                       estimates.of.quadratic.model[2] * series$Jaar +
+                                       estimates.of.quadratic.model[3] * (series$Jaar^2)), color = "black") +
                     theme(legend.position = "none",
                           axis.text.x = element_text(angle = 90, hjust = 1)) +
                     scale_x_continuous(breaks = series$Jaar, labels = series$Jaar) +
-                    labs(x = "Jaar", y = paste("Concentratie", param, " [mg/]"),
-                       title = paste("Trendomkering in filter ", i)) +
+                    labs(x = "Jaar", y = paste("Concentratie", param, strsplit(x$eenheid[1], " ")[[1]][1]),
+                         title = paste("Trendomkering in filter ", i)) +
                     theme(plot.title = element_text(hjust = 0.5),
-                        legend.position = "bottom") 
+                          legend.position = "bottom") 
                     
                     aux.x.axis <- series$Jaar[series$Jaar <= turning.point]
                     aux.y.axis <- best.Theil.Sen$intercept.1 + best.Theil.Sen$slope.1 * aux.x.axis
@@ -152,9 +156,9 @@ trendReversal <- function(i, x, dw, trim = FALSE, rpDL = TRUE,
                     p <- p + geom_line(aes(x,y), data = d,
                                       color = ifelse(best.Theil.Sen$slope.2 < 0, "blue", "red"))
                     p <- p + geom_vline(aes(xintercept = turning.point), color = "grey")
-                    p <- p + scale_color_manual(name = "", values = c(`< RG` = "red", waarneming = "black",
-                                                                      drempelwaarde = "red", `75% drempelwaarde` = "orange"),
-                                                breaks = c("< RG", "waarneming", "75% drempelwaarde", "drempelwaarde"))
+                    p <- p + scale_color_manual(name = "", values = c(`< RG` = "red", waarneming = "black"))
+                    p <- p + scale_linetype_manual(name = "", values = c(2, 2),
+                                                   guide = guide_legend(override.aes = list(color = c("orange", "red"))))
                     output <- p
             } 
         }

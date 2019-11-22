@@ -20,8 +20,10 @@
 #'
 #' @export
 
-trendomkeringAnalyse  <- function(d,sig=0.05) {
+trendomkeringAnalyse  <- function(d, sig=0.05, n.reeks) {
 
+    if(nrow(d) > 0) { 
+  
     if(length(unique(d$parameter))!=1) {
         stop("Er mag slechts 1 parameter in dataset aanwezig zijn")
     }
@@ -62,20 +64,22 @@ trendomkeringAnalyse  <- function(d,sig=0.05) {
         bind_rows(trend2) %>%
         bind_rows(trend3)
 
-    n.total <- nrow(trend)
+    n.tr <- nrow(trend)
     trend.sum <- trend %>%
         group_by(trend) %>%
         summarise(n = n(),
-                  percentage = n() / n.total,
+                  percentage = paste(round(n() / n.reeks, digits = 2), round(n() / n.tr, digits = 2), sep = " / " ),
                   gem.richting1 = mean(slope.1),
                   gem.richting2 = mean(slope.2),
                   jaar = mean(turning.point),
-                  jaar.sd = sd(turning.point)
+                  jaar.sd = sd(turning.point),
+                  putfilters = paste(sort(unique(putfilter)), collapse = ", ")
                   )
         
 
 
     return(trend.sum)
 
+    }
 }
 

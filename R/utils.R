@@ -10,8 +10,8 @@ testKolommen <- function(d) {
     # test of verplichte kolommen aanwezig zijn
     
     kolommen_numeriek <- c("xcoord", "ycoord", "meetjaar", "waarde", "detectielimiet", "verwijder")
-    kolommen <- c("putfilter","diepte","parameter",kolommen_numeriek)
-    if(length(setdiff(kolommen,names(d)))>0) {
+    kolommen <- c("putfilter", "diepte", "parameter", "eenheid", "grondwaterlichaam", kolommen_numeriek)
+    if(length(setdiff(kolommen, names(d)))>0) {
         stop("kolommen ontbreken of worden niet herkend")
     }
 
@@ -46,12 +46,14 @@ testRanges <- function(d) {
         stop("enkele meetjaren ontbreken")
     }
 
-    if(min(d$meetjaar)<1990||max(d$meetjaar)>lubridate::year(lubridate::now()))
+    if(min(d$meetjaar)<1990||max(d$meetjaar)>lubridate::year(lubridate::now())) {
         stop("meetjaar buiten bereik")
+    }
 
     if(length(setdiff(unique(d$parameter),valideParameters()))>0) {
         stop("onbekende parameters aangetroffen")
     }
+
 }
 
 testData <- function(d) {
@@ -75,6 +77,8 @@ testSerie <- function(d) {
     if(any(na.omit(d$waarde<0))) {
         stop("Negatieve concentratie aanwezig")
     }
-
+    if(length(unique(d$eenheid))>1) {
+      stop("Meer dan 1 eenheid aanwezig")
+    }
 }
 
