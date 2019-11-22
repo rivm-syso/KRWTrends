@@ -94,7 +94,7 @@ mktrends <- function(i, x, trim = FALSE, trimfactor = 1.5,
                        axis.text.x = element_text(angle = 90, hjust = 1))
         p <- p + scale_x_continuous(breaks = d$jr, labels = d$meetjaar)
         p <- p + labs(x = "Jaar", y = paste("Concentratie", param, strsplit(x$eenheid[1], " ")[[1]][1]),
-                      title = paste("Trend in filter ", i))
+                      title = paste("Trend in filter", i))
         p <- p + theme(plot.title = element_text(hjust = 0.5),
                        legend.position = "bottom")
         p <- p + scale_color_manual(name = "", values = c(`< RG` = "red", waarneming = "black"))
