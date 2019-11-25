@@ -6,12 +6,14 @@ Author: Job Spijker
 Authors@R: c(person("Job", "Spijker", email = "job.spijker@rivm.nl",
                   role = c("aut", "cre")),
 		person("Otto","Hansen",email = "otto.hansen@spkr.nl",
-			role="aut"))
+			role="aut"),
+			person("Mike", "Wit", email = "mike.wit@rivm.nl",
+			       role = "aut"))
 Description: Dit R pakket ondersteunt bij het maken van de KRW trendrapportage. Het bevat statistische toetsen voor trend en trendomkering. Daarnaast bevat het functionaliteit voor het opstellen van de vereiste tabellen en figuren.
 License: GPL-v3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
-Suggests: knitr,
-    rmarkdown
+Suggests: knitr, rmarkdown
+Imports: EnvStats, ggplot2, ggspatial, mblm
 VignetteBuilder: knitr
