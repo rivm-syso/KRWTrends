@@ -4,7 +4,7 @@
 \alias{trendomkeringAnalyse}
 \title{Bereken gegevens trendomkering}
 \usage{
-trendomkeringAnalyse(d, sig = 0.05)
+trendomkeringAnalyse(d, sig = 0.05, n.reeks)
 }
 \arguments{
 \item{sig}{alpha waarde (significantie) van trendomkeringen}
