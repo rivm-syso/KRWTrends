@@ -4,8 +4,8 @@
 \alias{mktrends}
 \title{Berekent Mann-Kendall statistiek voor enkel LMG filter}
 \usage{
-mktrends(i, x, trim = FALSE, trimfactor = 1.5, psig = 0.05,
-  alter = "two.sided", make.plot = FALSE)
+mktrends(i, x, trim = FALSE, trimfactor = 1.5, dw.plot = TRUE,
+  psig = 0.05, alter = "two.sided", rpDL = TRUE, make.plot = FALSE)
 }
 \arguments{
 \item{i}{put/filter naam waarvoor de statistiek berekend wordt}
@@ -14,9 +14,13 @@ mktrends(i, x, trim = FALSE, trimfactor = 1.5, psig = 0.05,
 
 \item{trim}{als TRUE, dan worden uitbijters verwijderd (trimmed)}
 
+\item{dw.plot}{geeft aan om de relevante drempelwaarde in de grafiek wordt geplot}
+
 \item{psig}{significanctie niveau}
 
 \item{alter}{alternatieve hypothese van \code{kendatTrendTest}}
+
+\item{rpDL}{of de rapportagegrenzen aangepast moeten worden, standaard op TRUE.}
 
 \item{make.plot}{geeft een plot output in plaats van een data.frame}
 
