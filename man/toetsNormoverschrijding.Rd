@@ -4,12 +4,10 @@
 \alias{toetsNormoverschrijding}
 \title{Toets Normoverschrijding}
 \usage{
-toetsNormoverschrijding(d, gwl, toetsnorm = 0.75)
+toetsNormoverschrijding(d, toetsnorm = 0.75)
 }
 \arguments{
 \item{d}{tijdreeks van waarnemingen voor 1 parameter en 1 diepte}
-
-\item{gwl}{het grondwaterlichaam}
 
 \item{toetsnorm}{de relatieve norm waar tegen getoetst wordt.
 
@@ -25,7 +23,7 @@ actuele drempelwaarde, dan moet de toetsnorm op 1 gezet worden.}
 een data.frame met de toets statistieken, de volgende
 kolommen worden gegeven:
  \itemize{
-   \item n totaal aantal gegeven meetwaarden boven de toetsnorm
+   \item n totaal aantal gegeven meetwaarden (>RG) boven de toetsnorm
    \item percentage percentage boven de toetsnorm
    \item gem.waarde gemiddelden van waarden boven de toetsnorm
    \item gem.ratio gemiddelde ratio van waarde/norm
@@ -33,7 +31,8 @@ kolommen worden gegeven:
 }
 \description{
 Deze functie berekent het percentage van de  waarnemingen met
-normoverschrijdingen. Het berekent ook de gemiddelde concentratie
-van de putten met normoverschrijdingen en de gemiddelde ratio van
+normoverschrijdingen. Hierbij worden alleen waardes >RG meegenomen.
+Het berekent ook de gemiddelde concentratie van de putten met 
+normoverschrijdingen en de gemiddelde ratio van 
 concentratie (waarde) gedeeld door de norm.
 }
