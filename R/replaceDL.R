@@ -8,7 +8,7 @@
 #' Om de detectielimet te vervangen voor de helft van de
 #' oorspronkelijke waarde moet de vermenigvuldigingsfactor 0,5 zijn.
 #' 
-#' @param x vector met waardes
+#' @param d vector met waardes
 #' @param replaceval vermenigvuldigingsfactor om rapportagegrens waardes
 #' te vervangen
 #' @return een vector met waardes waar de detectielimiet is vervangen
