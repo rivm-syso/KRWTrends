@@ -1,7 +1,7 @@
 Package: KRWTrends
 Type: Package
 Title: Functies voor trendrapportage KRW
-Version: 0.1.0
+Version: 1.0.0
 Author: Job Spijker
 Authors@R: c(person("Job", "Spijker", email = "job.spijker@rivm.nl",
                   role = c("aut", "cre")),
