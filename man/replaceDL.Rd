@@ -7,10 +7,10 @@
 replaceDL(d, replaceval = 0.5)
 }
 \arguments{
+\item{d}{vector met waardes}
+
 \item{replaceval}{vermenigvuldigingsfactor om rapportagegrens waardes
 te vervangen}
-
-\item{x}{vector met waardes}
 }
 \value{
 een vector met waardes waar de detectielimiet is vervangen
