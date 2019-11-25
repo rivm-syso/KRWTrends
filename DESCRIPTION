@@ -14,6 +14,11 @@ License: GPL-v3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
-Suggests: knitr, rmarkdown
-Imports: EnvStats, ggplot2, ggspatial, mblm
+Suggests: knitr, 
+          rmarkdown
+Imports: EnvStats, 
+         ggplot2, 
+         ggspatial, 
+         mblm, 
+         tidyverse
 VignetteBuilder: knitr
