@@ -155,9 +155,10 @@ head(grondwaterdata)
 
 ### *Help functies*
 Binnen `utils.R` staan enkele hulp functies voor de KRW trendanalyse. Deze 
-functies kunnen gebruikt worden voor het testen van de dataset en of de benodigde
-data aanwezig is. Bijvoorbeeld de functie `testKolommen()` gaat na of de
-verplichte kolommen aanwezig zijn.
+functies worden aangeroepen binnen de andere functie voor het testen van de dataset 
+en of de benodigde data aanwezig is. Bijvoorbeeld de functie `testKolommen()` gaat na of de
+verplichte kolommen aanwezig zijn. Deze hulp functies kunnen niet apart worden aangeroepen,
+maar worden dus binnen de andere functies gebruikt. 
 
 ### *Detectielimieten*
 
