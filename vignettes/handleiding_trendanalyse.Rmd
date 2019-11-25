@@ -2,11 +2,9 @@
 title: "Handleiding KRW trendanalyse"
 author: "RIVM"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{KRWTrends}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include = FALSE}
@@ -66,8 +64,8 @@ dataselectie op basis van infiltratiejaren, etc.) te worden gemotiveerd. Uiteind
 moet bovenstaande leiden tot een data.frame, waarbij dit pakket ervan uitgaat dat de 
 gegevens in de volgende velden staan:
 
-veldnaam | inhoud| type
----------|-------|-----
+veldnaam       | inhoud                      | type
+---------------|-----------------------------|--------
 putfilter | identificatie put & filter | karakter
 xcoord | x-coordinaat, in meters volgens RD | numeriek
 ycoord | y-coordinaat, in meters volgens RD | numeriek
@@ -173,7 +171,7 @@ Deze functie wordt aangeroepen binnen de `mktrends` functie met de
 De `dw.plot` parameter wordt gebruikt om de drempelwaardes te plotten,
 en staat standaard ook aan. Zie onderstaand:
 
-```{r}
+```{r fig.width = 6, fig.height = 3, fig.align = "center"}
 
 d <- grondwaterdata %>% 
     filter(parameter == "no3", diepte == "ondiep") 
@@ -258,7 +256,7 @@ doorlopen te worden voor de ondiepe en diepe filters:
 Onderstaand script maakt een overzicht wat kan helpen bij Tabel 2 uit de
 werkwijze:
 
-```{r fig.width = 6, fig.height = 4, fig.align = "center"}
+```{r fig.width = 6, fig.height = 3, fig.align = "center"}
 # Selecteer één parameter om maar één meetronde mee te nemen, 
 # voor meerdere parameters worden er extra bemonsteringen geteld
 
@@ -492,7 +490,7 @@ binnen deze functie met `rmoutlier()` eruit gehaald volgens de Tukey
 methode. Dit wordt aangeroepen met parameter `trim`, welke standaard uit 
 staat. De functie wordt als volgt gebruikt:
 
-```{r}
+```{r fig.width = 6, fig.height = 3, fig.align = "center"}
 
 d <- grondwaterdata %>% 
     filter(parameter == "no3", diepte == "ondiep")
@@ -572,7 +570,7 @@ voeren gebruiken we de volgende code:
 d <- grondwaterdata %>% 
     filter(parameter == "no3", diepte == "ondiep") 
 
-# Totaal aantal reeksen waarvoor trendanalyse wordt gedaan
+# Totaal aantal reeksen waarvoor trendanalyse wordt gedaan, nodig om 2 percentages te berekenen
 aantal.reeks <- paste(d$putfilter, d$parameter, sep = " - ") %>% unique %>% length()
 
 resultaat <- trendAnalyse(d, n.reeks = aantal.reeks)
@@ -638,7 +636,7 @@ worden om de invloed van uitbijters in rapportagegrenzen
 te bekijken. De afwezigheid van een trendlijn laat zien 
 dat de trend niet significant is (pas dan wordt deze geplot). 
 
-```{r}
+```{r fig.width = 6, fig.height = 3, fig.align = "center"}
 
 # Rapportagegrens aanpassen volgens methode
 d <- grondwaterdata %>% 
@@ -750,7 +748,7 @@ stap 4b.
 Middels onderstaande code kan de trendomkering gevisualiseerd worden:
 
 
-```{r}
+```{r fig.width = 6, fig.height = 3, fig.align = "center"}
 
 d <- grondwaterdata %>% 
     filter(parameter == "no3", diepte == "ondiep") 
