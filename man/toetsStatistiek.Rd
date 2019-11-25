@@ -4,19 +4,16 @@
 \alias{toetsStatistiek}
 \title{Toets Statistiek}
 \usage{
-toetsStatistiek(d, gwl)
+toetsStatistiek(d)
 }
 \arguments{
 \item{d}{tijdreeks van waarnemingen voor 1 parameter en 1 diepte}
-
-\item{gwl}{het grondwaterlichaam}
 }
 \value{
 een data.frame met de toets statistieken, de volgende
 kolommen worden gegeven:
  \itemize{
-   \item ntot totaal aantal gegeven meetwaarden
-   \item n aantal gegeven meetwaarden zonder NA's
+   \item ntot totaal aantal gegeven meetwaarden zonder NA's
    \item P50 mediaan van meetwaarden
    \item P95 95ste percentiel van meetwaarden
    \item perc.RG percentage meetwaarden onder de rapportagegrens (RG)
@@ -28,7 +25,7 @@ kolommen worden gegeven:
 \description{
 Deze functie geeft een overzicht van de statistieken in een 
 grondwaterdataset. Het 50ste en 95ste percentiel worden
-berekend. Daarnaast wordt het percentage metingen onder
-de rapportagegrens bepaald, met de laagste en hoogste
-rapportagegrens binnen de dataset.
+berekend, waarbij zowel metingen <RG als erboven zijn meegenomen.
+Daarnaast wordt het percentage metingen onder de rapportagegrens 
+bepaald, met de laagste en hoogste rapportagegrens binnen de dataset.
 }
