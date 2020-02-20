@@ -33,7 +33,7 @@
 
 toetsNormoverschrijding <- function(d, toetsnorm = 0.75) {
 
-    testSerie(d)
+    # testSerie(d)
     param <- d$parameter[1]
 
     n.tot <- nrow(d)
