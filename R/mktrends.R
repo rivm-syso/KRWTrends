@@ -6,7 +6,7 @@
 #' uitbijters worden verwijderd met \code{rmoutlier}
 #' 
 #' @param i put/filter naam waarvoor de statistiek berekend wordt
-#' @param x data.frame van lmgsubset
+#' @param x data.frame van lmgsubset met kolom 'instantie' voor de meetinstantie
 #' @param dw.plot geeft aan om de relevante drempelwaarde in de grafiek wordt geplot
 #' @param trim als TRUE, dan worden uitbijters verwijderd (trimmed)
 #' @param trimFactor factor van \code{rmoutlier}
@@ -24,13 +24,13 @@
 
 mktrends <- function(i, x, trim = FALSE, trimfactor = 1.5,
                      dw.plot = TRUE, psig = 0.05, alter = "two.sided", 
-                     rpDL = TRUE, make.plot = FALSE ) {
+                     rpDL = TRUE, make.plot = FALSE, replacefactor = 0.5) {
     
     dw <- x$norm[1]
     param <- x$parameter[1]
     # subset d, only interested in time serie, i.e. jr and
     # concentration
-    d <- x %>% select(putfilter, meetjaar, waarde, detectielimiet, eenheid) %>%
+    d <- x %>% select(putfilter, meetjaar, waarde, detectielimiet, instantie, eenheid) %>%
         mutate(jr = meetjaar - min(meetjaar)) %>%
         arrange(jr) %>%
         filter(putfilter == i)
@@ -38,16 +38,15 @@ mktrends <- function(i, x, trim = FALSE, trimfactor = 1.5,
     d <- na.omit(d)
     
     if(rpDL) {
-    d <- d %>% replaceDL() 
+    d <- d %>% replaceDL(replaceval = replacefactor) 
     }
     
     # wijs de reeks af als er minder dan 5 metingen  en minder dan 4 waarnemingen (waarde > RG) zijn 
-    if(nrow(d) < 5) {
-      return(NA)
+    if (nrow(d) < 5) {
+      return(print("Meetreeks kleiner dan 5 metingen"))
     }
-    
-    if(nrow(d[d$detectielimiet < 1, ]) < 4) {
-        return(NA)
+    if (nrow(d[d$detectielimiet < 1, ]) < 4) {
+      return(print("Minder dan 4 metingen boven detectie"))
     }
 
     # remove outliers
@@ -59,8 +58,6 @@ mktrends <- function(i, x, trim = FALSE, trimfactor = 1.5,
 
     # remove NA values, order by year and create time series
     d <- na.omit(d)
-    #d <- d[order(d$jr),]
-    #d.ts <- ts(select(d,waarde))
 
     # do Mann-Kendall test
     n <- nrow(d)
@@ -90,7 +87,7 @@ mktrends <- function(i, x, trim = FALSE, trimfactor = 1.5,
       
         p <- ggplot(d, aes(jr, waarde, colour = detectielimiet))
         p <- p + geom_line(colour = "grey")
-        p <- p + geom_point()
+        p <- p + geom_point(aes(shape = Instantie)) + scale_shape_manual(values=c(16, 17))
         if(dw.plot) {
           p <- p + geom_hline(aes(yintercept = dw, linetype = "drempelwaarde"), colour = "red") 
           p <- p + geom_hline(aes(yintercept = 0.75 * dw, linetype = "75% drempelwaarde"), colour = "orange")
