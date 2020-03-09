@@ -27,7 +27,7 @@
 
 toetsStatistiek <- function(d) {
   
-    testSerie(d)
+    # testSerie(d)
 
     param <- d$parameter[1]
     nrm <- d$norm[1]
