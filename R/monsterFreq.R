@@ -18,7 +18,7 @@ monsterFreq <- function(x, param) {
     group_by(grondwaterlichaam, diepte) %>%
     count(putfilter) %>%
     group_by(grondwaterlichaam, diepte, aantal.metingen = n) %>%
-    summarise(aantal.putten = length(unique(putfilter))) %>%
+    dplyr::summarise(aantal.putten = length(unique(putfilter))) %>%
     spread(key = aantal.metingen, value = aantal.putten, fill = 0) 
     
     bereik <- 1:rev(names(d))[1]
@@ -26,8 +26,12 @@ monsterFreq <- function(x, param) {
     
     d[, as.character(x)] <- 0
     d <- d %>% dplyr::select(grondwaterlichaam, diepte, as.character(1:max(bereik)))
-    
-    return(d)
+    d$AantalFilt = rowSums(d[,3:ncol(d)])
+    colnr = which(colnames(d) == nbemonsterd)
+    d$PercFiltBovenN = rowSums(d[,colnr:(ncol(d)-1)])/d$AantalFilt*100
+    d2 = data.frame(Grondwaterlichaam = d$grondwaterlichaam,Diepte = d$diepte,Aantal.filters = d$AantalFilt,stringsAsFactors = F)
+    d2 = data.frame(d2,d[3:(ncol(d)-2)],round(d[,ncol(d)],digits = 1))
+    return(d2)
 }
   
   
