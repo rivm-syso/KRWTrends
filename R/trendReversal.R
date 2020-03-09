@@ -55,14 +55,21 @@
 #trendReversal <- function(series,make.plot){
 trendReversal <- function(i, x, trim = FALSE, rpDL = TRUE,
                           trimfactor = 1.5, make.plot = FALSE,
-                          dw.plot = TRUE) {
+                          dw.plot = TRUE,wantCoefficients = FALSE) {
     
     dw <- x$norm[1]
     param <- x$parameter[1]
     
     d <- x %>% filter(putfilter == i) %>%
         select(Jaar = meetjaar, waarde = waarde, 
-               putfilter, detectielimiet, eenheid)
+               putfilter, detectielimiet, eenheid, instantie)
+    # Controle minder dan 5 metingen of minder dan 4 metingen boven detectie
+    if (nrow(d) < 5) {
+      return(print(paste("Meetreeks kleiner dan 5 metingen")))
+    }
+    if (nrow(d[d$detectielimiet < 1, ]) < 4) {
+      return(print(paste("Minder dan 4 metingen boven detectie")))
+    }
 
     if(trim) {
         d <- mutate(d,
@@ -75,10 +82,7 @@ trendReversal <- function(i, x, trim = FALSE, rpDL = TRUE,
     if(rpDL) {
       d <- d %>% replaceDL() 
     }
-# 
-#     names(series) <- c("Jaar","waarde")
-#     series <- na.omit(series)
-# 
+
     min.no.years <- 5
     Years <- sort(unique(series$Jaar))
         
@@ -93,12 +97,13 @@ trendReversal <- function(i, x, trim = FALSE, rpDL = TRUE,
         results.Theil.Sen <- as.data.frame(t(sapply(permissible.range,apply.Theil.Sen,series)))
         names(results.Theil.Sen) <- c("Jaar", "slope.1", "slope.2", "intercept.1", "intercept.2", "RSS")
         results.Theil.Sen <- transform(results.Theil.Sen,discordant.slopes = sign(slope.1 * slope.2))
-        results.Theil.Sen 
+        # results.Theil.Sen 
 
         best.Theil.Sen <- subset(results.Theil.Sen,discordant.slopes < 0)
         minimum.RSS <- suppressWarnings(min(best.Theil.Sen$RSS))
-        best.Theil.Sen <- subset(best.Theil.Sen,RSS <= minimum.RSS)[1,]; rownames(best.Theil.Sen) <- NULL
-        best.Theil.Sen  
+        best.Theil.Sen <- subset(best.Theil.Sen,RSS <= minimum.RSS)[1,] 
+        rownames(best.Theil.Sen) <- NULL
+        # best.Theil.Sen  
         turning.point <- as.numeric(best.Theil.Sen[1])
 
         quadratic.model <- lm(waarde~Jaar+I(Jaar^2), data = series)
@@ -113,17 +118,23 @@ trendReversal <- function(i, x, trim = FALSE, rpDL = TRUE,
         if(any(results.Theil.Sen$discordant.slopes < 0) & other.turning.point>=min(permissible.range) & 
            other.turning.point<=max(permissible.range)){
 
-            if(!make.plot){
+          if(wantCoefficients){
+            table_coeff = data.frame(Name=i,Parameter = param, Type=c("Linear_1","Linear_2","Quadratic"),
+                                     Intercept = c(best.Theil.Sen$intercept.1,best.Theil.Sen$intercept.2,estimates.of.quadratic.model[1]),
+                                     Slope_1 = c(best.Theil.Sen$slope.1,best.Theil.Sen$slope.2,estimates.of.quadratic.model[2]),
+                                     Slope_2 = c(NA,NA,estimates.of.quadratic.model[3]),TurningPoint = turning.point)
+            output = table_coeff
+          }else if (!make.plot) {
                 output <- transform(best.Theil.Sen[1:5],p = P.value.reversal, putfilter = i)
 
                 names(output)[1] <- "turning.point"
-            } else {
+          } else {
 
                 series <- series %>% mutate(detectielimiet = ifelse(detectielimiet == 1, "< RG", "waarneming"))
                 
                 p <- ggplot(data = series, aes(x = Jaar, y = waarde, colour = detectielimiet)) +
-                    geom_line(colour = "grey") +
-                    geom_point()
+                    geom_line(colour = "grey") + 
+                  geom_point(aes(shape = Instantie)) + scale_shape_manual(values=c(16, 17))
                     
                     if(dw.plot) {
                 p <- p + geom_hline(aes(yintercept = dw, linetype = "drempelwaarde"), colour = "red") +
@@ -161,9 +172,18 @@ trendReversal <- function(i, x, trim = FALSE, rpDL = TRUE,
                                                    guide = guide_legend(override.aes = list(color = c("orange", "red"))))
                     output <- p
             } 
+        }else{
+          if(wantCoefficients){
+            table_coeff = data.frame(Name=i,Parameter = param, Type=c("Geen trend"),
+                                     Intercept = NA,
+                                     Slope_1 = NA,
+                                     Slope_2 = NA,TurningPoint = NA)
+            output = table_coeff
+          }
         }
-
-    } 
+    }else{
+      output = "Te weinig jaren voor trendbepaling"
+    }
 
     return(output)
 }	
