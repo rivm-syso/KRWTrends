@@ -6,7 +6,6 @@
 apply.Theil.Sen <- function(y,Series){
 
     aux.Series <- subset(Series,Jaar<=y)
-
     Theil.Sen <- mblm::mblm(waarde~Jaar,dataframe=aux.Series,repeated=FALSE)$coefficients
     slope.1 <- Theil.Sen[2]
     intercept.1 <- Theil.Sen[1]
