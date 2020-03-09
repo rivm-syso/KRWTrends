@@ -34,7 +34,6 @@ replaceDL <- function(d, replaceval = 0.5) {
   
   laagste_waarneming <- d$waarde[d$detectielimiet == 0] %>% min(na.rm = TRUE) 
   
-  #hoogste_RG_onder_waarneming <- d$waarde[d$detectielimiet == 1 & d$waarde < laagste_waarneming] %>% max(na.rm = TRUE)
   hoogste_RG_onder_waarneming <- ifelse(length(d$waarde[d$detectielimiet == 1 & d$waarde < laagste_waarneming]) > 0,
                                         d$waarde[d$detectielimiet == 1 & d$waarde < laagste_waarneming] %>% max(na.rm = TRUE),
                                         NA)
