@@ -57,8 +57,8 @@ trendReversal <- function(i, x, trim = FALSE, rpDL = TRUE,
                           trimfactor = 1.5, make.plot = FALSE,
                           dw.plot = TRUE,wantCoefficients = FALSE) {
     
-    dw <- x$norm[1]
-    param <- x$parameter[1]
+    dw <- x$norm[which(x$putfilter == i)[1]]
+    param <- x$parameter[which(x$putfilter == i)[1]]
     
     d <- x %>% filter(putfilter == i) %>%
         select(Jaar = meetjaar, waarde = waarde, 

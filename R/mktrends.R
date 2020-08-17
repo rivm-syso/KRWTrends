@@ -26,8 +26,8 @@ mktrends <- function(i, x, trim = FALSE, trimfactor = 1.5,
                      dw.plot = TRUE, psig = 0.05, alter = "two.sided", 
                      rpDL = TRUE, make.plot = FALSE, replacefactor = 0.5) {
     
-    dw <- x$norm[1]
-    param <- x$parameter[1]
+    dw <- x$norm[which(x$putfilter == i)[1]]
+    param <- x$parameter[which(x$putfilter == i)[1]]
     # subset d, only interested in time serie, i.e. jr and
     # concentration
     d <- x %>% select(putfilter, meetjaar, waarde, detectielimiet, instantie, eenheid) %>%
