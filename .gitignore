@@ -9,5 +9,6 @@ lmg.Rproj
 inst/doc
 *.Rproj
 *.html
+prototype.R
 
 
