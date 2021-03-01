@@ -6,7 +6,7 @@
 #' uitbijters worden verwijderd met \code{rmoutlier}
 #' 
 #' @param i put/filter naam waarvoor de statistiek berekend wordt
-#' @param x data.frame van lmgsubset met kolom 'instantie' voor de meetinstantie
+#' @param x data.frame van lmgsubset 
 #' @param dw.plot geeft aan om de relevante drempelwaarde in de grafiek wordt geplot
 #' @param trim als TRUE, dan worden uitbijters verwijderd (trimmed)
 #' @param trimFactor factor van \code{rmoutlier}
@@ -30,7 +30,7 @@ mktrends <- function(i, x, trim = FALSE, trimfactor = 1.5,
     param <- x$parameter[which(x$putfilter == i)[1]]
     # subset d, only interested in time serie, i.e. jr and
     # concentration
-    d <- x %>% select(putfilter, meetjaar, waarde, detectielimiet, instantie, eenheid) %>%
+    d <- x %>% select(putfilter, meetjaar, waarde, detectielimiet, eenheid) %>%
         mutate(jr = meetjaar - min(meetjaar)) %>%
         arrange(jr) %>%
         filter(putfilter == i)
@@ -43,10 +43,10 @@ mktrends <- function(i, x, trim = FALSE, trimfactor = 1.5,
     
     # wijs de reeks af als er minder dan 5 metingen  en minder dan 4 waarnemingen (waarde > RG) zijn 
     if (nrow(d) < 5) {
-      return(print("Meetreeks kleiner dan 5 metingen"))
+        return(NA)
     }
     if (nrow(d[d$detectielimiet < 1, ]) < 4) {
-      return(print("Minder dan 4 metingen boven detectie"))
+        return(NA)
     }
 
     # remove outliers
@@ -87,7 +87,7 @@ mktrends <- function(i, x, trim = FALSE, trimfactor = 1.5,
       
         p <- ggplot(d, aes(jr, waarde, colour = detectielimiet))
         p <- p + geom_line(colour = "grey")
-        p <- p + geom_point(aes(shape = Instantie)) + scale_shape_manual(values=c(16, 17))
+        p <- p + geom_point()
         if(dw.plot) {
           p <- p + geom_hline(aes(yintercept = dw, linetype = "drempelwaarde"), colour = "red") 
           p <- p + geom_hline(aes(yintercept = 0.75 * dw, linetype = "75% drempelwaarde"), colour = "orange")
