@@ -26,12 +26,8 @@ monsterFreq <- function(x, param) {
     
     d[, as.character(x)] <- 0
     d <- d %>% dplyr::select(grondwaterlichaam, diepte, as.character(1:max(bereik)))
-    d$AantalFilt = rowSums(d[,3:ncol(d)])
-    colnr = which(colnames(d) == nbemonsterd)
-    d$PercFiltBovenN = rowSums(d[,colnr:(ncol(d)-1)])/d$AantalFilt*100
-    d2 = data.frame(Grondwaterlichaam = d$grondwaterlichaam,Diepte = d$diepte,Aantal.filters = d$AantalFilt,stringsAsFactors = F)
-    d2 = data.frame(d2,d[3:(ncol(d)-2)],round(d[,ncol(d)],digits = 1))
-    return(d2)
+
+    return(d)
 }
   
   
