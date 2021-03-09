@@ -3,6 +3,7 @@ title: "Handleiding KRW trendanalyse"
 author: "RIVM"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
+#output: rmarkdown::pdf_document
 vignette: >
   %\VignetteIndexEntry{KRWTrends}
   %\VignetteEngine{knitr::rmarkdown}
