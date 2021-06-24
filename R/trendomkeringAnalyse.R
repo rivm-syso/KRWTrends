@@ -46,37 +46,44 @@ trendomkeringAnalyse  <- function(d, sig=0.05, n.reeks) {
 #                                  res$output,
 #                                  stringsAsFactors=FALSE))
 #     }
-
-    fdr  <-  resultaat %>%
-        select(p) %>%
-        bhfdr()
-
-    trend1  <- resultaat %>%
-        filter(p<=fdr$threshold) %>%
-        mutate(trend="trendomkering - benoemd")
-    trend2  <- resultaat %>%
-        filter(p<=sig,p>fdr$threshold)  %>% 
-        mutate(trend="trendomkering - niet benoemd")
-    trend3 <- resultaat %>%
-        filter(p>sig) %>%
-        mutate(trend="geen trendomkering")
-    trend <- trend1 %>%
-        bind_rows(trend2) %>%
-        bind_rows(trend3)
-
-    n.tr <- nrow(trend)
-    trend.sum <- trend %>%
-        group_by(trend) %>%
-        summarise(n = n(),
-                  percentage = paste(round(n() / n.reeks, digits = 2), round(n() / n.tr, digits = 2), sep = " / " ),
-                  gem.richting1 = mean(slope.1),
-                  gem.richting2 = mean(slope.2),
-                  jaar = mean(turning.point),
-                  jaar.sd = sd(turning.point),
-                  putfilters = paste(sort(unique(putfilter)), collapse = ", ")
-                  )
-        
-
+    
+    # als <10 meetjaren in trendReversal gaat, dan komt lege dataframe
+    # terug, welke niet gebruik kan worden in bhfdr()
+    # dus hier afkappen
+    if(nrow(resultaat) > 0) {
+      
+      fdr  <-  resultaat %>%
+          select(p) %>%
+          bhfdr()
+  
+      trend1  <- resultaat %>%
+          filter(p<=fdr$threshold) %>%
+          mutate(trend="trendomkering - benoemd")
+      trend2  <- resultaat %>%
+          filter(p<=sig,p>fdr$threshold)  %>% 
+          mutate(trend="trendomkering - niet benoemd")
+      trend3 <- resultaat %>%
+          filter(p>sig) %>%
+          mutate(trend="geen trendomkering")
+      trend <- trend1 %>%
+          bind_rows(trend2) %>%
+          bind_rows(trend3)
+  
+      n.tr <- nrow(trend)
+      trend.sum <- trend %>%
+          group_by(trend) %>%
+          summarise(n = n(),
+                    percentage = paste(round(n() / n.reeks, digits = 2), round(n() / n.tr, digits = 2), sep = " / " ),
+                    gem.richting1 = mean(slope.1),
+                    gem.richting2 = mean(slope.2),
+                    jaar = mean(turning.point),
+                    jaar.sd = sd(turning.point),
+                    putfilters = paste(sort(unique(putfilter)), collapse = ", ")
+                    )
+          
+    } else {
+      trend.sum <- NA
+    }
 
     return(trend.sum)
 
