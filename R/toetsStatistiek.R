@@ -31,16 +31,27 @@ toetsStatistiek <- function(d) {
 
     param <- d$parameter[1]
     nrm <- d$norm[1]
-
-    d %>% mutate(dwratio = waarde / norm) %>%
-          drop_na %>%
-          summarise(ntot = n(),
-                  P50 = median(waarde),
-                  P95 = quantile(waarde, 0.95),
-                  perc.RG = round(nrow(d[d$detectielimiet > 0,]) / n() * 100, digits = 1),
-                  RG.min = min(waarde[detectielimiet > 0]),
-                  RG.max = max(waarde[detectielimiet > 0]),
-                  norm = nrm) 
+    if(is.na(nrm)){
+        d %>% mutate(dwratio = 1) %>%
+        drop_na(waarde) %>%
+        summarise(ntot = n(),
+                P50 = median(waarde),
+                P95 = quantile(waarde, 0.95),
+                perc.RG = round(nrow(d[d$detectielimiet > 0,]) / n() * 100, digits = 1),
+                RG.min = min(waarde[detectielimiet > 0]),
+                RG.max = max(waarde[detectielimiet > 0]),
+                norm = nrm) 
+    }else{
+      d %>% mutate(dwratio = waarde / norm) %>%
+            drop_na %>%
+            summarise(ntot = n(),
+                    P50 = median(waarde),
+                    P95 = quantile(waarde, 0.95),
+                    perc.RG = round(nrow(d[d$detectielimiet > 0,]) / n() * 100, digits = 1),
+                    RG.min = min(waarde[detectielimiet > 0]),
+                    RG.max = max(waarde[detectielimiet > 0]),
+                    norm = nrm) 
+     }
 }
 
 
