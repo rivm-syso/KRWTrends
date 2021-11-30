@@ -22,6 +22,8 @@
 
 
 trendAnalyse <- function(d, n.reeks, replacefactor = 0.5) {
+  
+  rf <- replacefactor
 
   if(n.reeks < 1) {
     return("totaal aantal reeksen onbekend om % trends te berekenen")
@@ -29,7 +31,7 @@ trendAnalyse <- function(d, n.reeks, replacefactor = 0.5) {
   
   if(nrow(d) > 0) {  
     i <- as.character(unique(d$putfilter))
-    res2 <- lapply(i, FUN = mktrends, d, replacefactor = replacefactor) %>%
+    res2 <- lapply(i, FUN = mktrends, d, replacefactor = rf) %>%
         do.call("rbind", args =.) %>%
         na.omit()
     
