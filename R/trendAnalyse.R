@@ -63,7 +63,7 @@ trendAnalyse <- function(d, n.reeks, replacefactor = 0.5) {
 
       # samenvatting niet benoemde trends (p>fdr threshold)
       d.trend3  <- res2 %>% 
-          filter(trend == "trend") %>%
+          filter(trend == "trend", p > fdr$threshold) %>%
           mutate(trend = "trend- niet benoemd") %>%
           group_by(trend) %>%
           summarise(n = n(),
