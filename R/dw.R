@@ -4,6 +4,8 @@
 #'
 #' @param param parameter naam (als string)
 #' @param gwl grondwaterlichaam (groundwaterbody)
+#' @param data dataset met drempelwaardes. default is drempelwaardes dataset die
+#' bij het pakket zit
 
 #' @return drempelwaarde per stof per grondwaterlichaam 
 #'
@@ -16,9 +18,8 @@
 
 
 
-dw <- function(param,gwl) {
-    data(drempelwaarden)
-    x <- subset(drempelwaarden,select=param,gwbident==gwl)[[param]]
+dw <- function(param,gwl,data=drempelwaarden) {
+    x <- subset(data,select=param,gwbident==gwl)[[param]]
     if(length(x)==0) {
         warning("dw: no value found")
         x <- NA
