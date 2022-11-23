@@ -8,37 +8,20 @@
 #' Om de detectielimet te vervangen voor de helft van de
 #' oorspronkelijke waarde moet de vermenigvuldigingsfactor 0,5 zijn.
 #' 
-#' @param d vector met waardes
+#' @param d grondwaterdata
 #' @param replaceval vermenigvuldigingsfactor om rapportagegrens waardes
 #' te vervangen
-#' @return een vector met waardes waar de detectielimiet is vervangen
+#' @return grondwaterdata
 #' 
 #' @examples
-#' data(lmg_reeks)
-#' d <- replaceDL(lmg_reeks, 0.5)
+#' data(grondwaterdata)
+#' d <- replaceDL(grondwaterdata, 0.5)
 #'
 #' @export
 
 replaceDL <- function(d, replaceval = 0.5) {
   
-  # Check of er maar één reeks wordt ingevoerd om de DG aan te passen
-  if(length(unique(d$putfilter)) > 1){
-    stop("de reeks bevat meerdere putfilters,
-         maar mag er maar 1 bevatten")
-  }
-
-  if(length(unique(d$parameter)) > 1){
-    stop("de reeks bevat meerdere parameters, 
-         maar mag er maar 1 bevatten")
-  }
-  
-  laagste_waarneming <- d$waarde[d$detectielimiet == 0] %>% min(na.rm = TRUE) 
-  
-  hoogste_RG_onder_waarneming <- ifelse(length(d$waarde[d$detectielimiet == 1 & d$waarde < laagste_waarneming]) > 0,
-                                        d$waarde[d$detectielimiet == 1 & d$waarde < laagste_waarneming] %>% max(na.rm = TRUE),
-                                        NA)
-  
-  d <- d %>% mutate(waarde = ifelse(waarde < laagste_waarneming & detectielimiet == 1, replaceval * hoogste_RG_onder_waarneming, waarde))
+  d <- d %>% mutate(waarde = ifelse(detectielimiet == 1, replaceval * waarde, waarde))
 
   return(d)
 }

@@ -14,6 +14,8 @@
 #' @param alter alternatieve hypothese van \code{kendatTrendTest}
 #' @param rpDL of de rapportagegrenzen aangepast moeten worden, standaard op TRUE.
 #' @param make.plot geeft een plot output in plaats van een data.frame
+#' @param replacefactor vermenigvuldigingsfactor om rapportagegrens waardes
+#' te vervangen
 #'
 #' @return data.frame met statistiek of een plot object (als #' make.plot=TRUE)
 #' 

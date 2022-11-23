@@ -6,6 +6,8 @@
 #'
 #' @param d data.frame met grondwaterdata
 #' @param n.reeks totaal aantal reeksen van selectie
+#' @param replacefactor vermenigvuldigingsfactor om rapportagegrens waardes
+#' te vervangen
 #'
 #' @return tabel met trendstatistieken
 #'  \itemize{
@@ -19,7 +21,9 @@
 #' @export
 
 
-trendAnalyse <- function(d, n.reeks) {
+trendAnalyse <- function(d, n.reeks, replacefactor = 0.5) {
+  
+  rf <- replacefactor
 
   if(n.reeks < 1) {
     return("totaal aantal reeksen onbekend om % trends te berekenen")
@@ -27,7 +31,7 @@ trendAnalyse <- function(d, n.reeks) {
   
   if(nrow(d) > 0) {  
     i <- as.character(unique(d$putfilter))
-    res2 <- lapply(i, FUN = mktrends, d) %>%
+    res2 <- lapply(i, FUN = mktrends, d, replacefactor = rf) %>%
         do.call("rbind", args =.) %>%
         na.omit()
     
@@ -59,7 +63,7 @@ trendAnalyse <- function(d, n.reeks) {
 
       # samenvatting niet benoemde trends (p>fdr threshold)
       d.trend3  <- res2 %>% 
-          filter(trend == "trend") %>%
+          filter(trend == "trend", p > fdr$threshold) %>%
           mutate(trend = "trend- niet benoemd") %>%
           group_by(trend) %>%
           summarise(n = n(),
