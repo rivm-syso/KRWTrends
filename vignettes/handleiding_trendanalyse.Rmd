@@ -130,7 +130,8 @@ gaan in ieder geval door naar stap 4.
 ### *Lijst met grondwaterlichamen*
 
 Gebruik de functie `getgwl()` om een lijst van grondwaterlichamen te
-krijgen.
+krijgen. Standaard wordt de tabel drempelwaarden gebruikt, maar er kan ook een
+andere tabel worden gebruikt. Zie ook het voorbeeld bij *lijst met drempelwaarden*.
 
 
 ```{r}
@@ -141,9 +142,17 @@ print(x)
 ### *Lijst met drempelwaarden*
 
 Bepaal de drempelwaarden voor een grondwaterlichaam en stof met de funtie `dw()`.
+Standaard wordt de tabel drempelwaarden gebruikt, maar er kan ook een
+andere tabel worden gebruikt.
 
 ```{r}
 dw(param = "no3", gwl = "NLGW0001")
+
+# voorbeeld andere tabel
+drempelwaarden2 <- drempelwaarden %>% 
+  mutate(no3 = ifelse(gwbident == "NLGW0001", 60, no3))
+
+dw(param = "no3", gwl = "NLGW0001", data = drempelwaarden2)
 ```
 
 Met deze functie kan ook een kolom met drempelwaardes worden toegevoegd op basis van 
@@ -190,7 +199,7 @@ print(figuur)
 
 ### Toets normoverschrijding
 
-Voor het toetsten van de normoverschrijding wordt de gemeten waarde
+Voor het toetsen van de normoverschrijding wordt de gemeten waarde
 vergeleken met 75% van de drempelwaarde en met de drempelwaarde zelf. Hiervoor
 worden alleen de waarde >RG gebruikt. Dit wordt gedaan met de functie 
 `toetsNormoverschrijding` per grondwaterlichaam. Binnen deze functie staat de 
@@ -199,7 +208,7 @@ drempelwaarde zelf gezet. De voorbeeld data is afkomstig van het grondwaterlicha
 NLGW0003, toetsen van de data gaat als volgt:
 
 ```{r}
-# selecteer no3, vervang rapportagegrens met 0.5 * RG
+# selecteer no3 voor grondwaterlichaam NLGW0003 ondiep
 d <- grondwaterdata %>% 
     filter(grondwaterlichaam == "NLGW0003", 
            parameter == "no3", diepte == "ondiep") 
@@ -235,10 +244,11 @@ per grondwaterlichaam is aangegeven voor welke stoffen een overschrijding is
 aangetroffen van 75% van de norm en van de norm, zie Tabel 1.
 
 ### Tabel 1
-| Grondwaterlichaam | Parameters                                 | 
-|-------------------+----------------------:|-------------------:|
-|                   |75% normoverschrijding | Normoverschrijding |
-|NLGW00XX           |                       |                    |
+| Grondwaterlichaam |             |Parameters                                  | 
+|-------------------+-------------|:----------------------|--------------------|
+|                   |             |75% normoverschrijding |Normoverschrijding  |
+|NLGW00XX           |Ondiep       |                       |                    |
+|                   |Diep         |                       |                    |
  
 
 ## 3: Beoordeling geschiktheid dataset voor trendanalyse KRW
@@ -415,15 +425,15 @@ van reeksen van waarnemingen in stap 4c.
 ## 4: Statistische trendtoets
 
 In stap 4 wordt voor de reeksen die in stap 3d zijn geselecteerd de 
-trendtoets daadwerkelijk uitgevoerd. Dit is uitsluitend voor de grondwaterlichamen
+trendtoets daadwerkelijk uitgevoerd. Dit is ten minste voor de grondwaterlichamen
 waarin een 75% normoverschrijding is aangetroffen (zie stap 2). 
 
-De trendtoets bestaat in stap 4 uit het uitvoeren van een statistische trendtoets
-op putfilterniveau (stap 4b), een correctie voor 'vals positieven' (stap 4c), het
-verzamelen van de statistieken (stap 4d) en, indien nodig, een visuele inspectie 
-van de reeksen en een expert beoordeling (stap 4e). Voordat deze stappen worden
-toegelicht, wordt eerst ingegaan op de invloed van rapportagegrenzen en de invloed
-van gemarkeerde reeksen. 
+De trendtoets in stap 4 bestaat uit het uitvoeren van een statistische trendtoets
+op putfilterniveau (stap 4b), een correctie voor 'vals positieven' (stap 4c), 
+indien nodig, een visuele inspectie van de reeksen en een expert beoordeling 
+(stap 4d) en het verzamelen van de statistieken van het eindresultaat in iteratie 
+2 (stap 4e). Voordat deze stappen worden toegelicht, wordt eerst ingegaan op de 
+invloed van rapportagegrenzen. 
 
 #### *Toelichting invloed rapportagegrenzen*
 Binnen een reeks kunnen meerdere rapportagegrenzen met verschillende 
@@ -433,24 +443,20 @@ rapportagegrenzen op het trendresultaat, zoals kunstmatige trends en de
 invloed van uitbijters. 
 
 Om zicht te krijgen op de invloed van rapportagegrenzen op het resultaat (zie ook
-stap 3c) dient de trendanalyse volgens iteratie 1, 2 en 3 te worden uitgevoerd.
+stap 3c) dient de trendanalyse volgens iteratie 1 en 2 te worden uitgevoerd.
 In iteratie 1 wordt de trendtoets uitgevoerd op de dataset waarbij <
 rapportagegrens wordt geherdefinieerd als de helft van de rapportagegrens. In
 iteratie 2 wordt de trendtoets nogmaals uitgevoerd waarbij < rapportagegrens wordt
 geherdefinieerd als 0.
 
-Aan de hand van een visuele inspectie wordt bepaald of er een verschil is tussen 
-de resultaten van iteratie 1 en 2. Als de resulaten van iteratie 1 en 2 niet 
-verschillen dan hebben de rapportagegrenzen in de dataset geen invloed op het 
-resultaat van de trendtoets. Verdere actie is niet nodig. Het resultaat van 
-iteratie 1 kan worden gebruikt.
+Als de resulaten van iteratie 1 en 2 niet verschillen dan hebben de 
+rapportagegrenzen in de dataset geen invloed op het resultaat van de trendtoets. 
+Verdere actie is niet nodig. Het resultaat van iteratie 1 kan worden gebruikt.
 
-Als de resultaten van iteratie 1 en 2 na een visuele inspectie wel verschillen 
-dan dienen de reeksen op filterniveau visueel te worden geïnspecteerd op de 
-aanwezigheid van uitbijters in de rapportagegrens of op kunstmatige trends. Op 
-basis van een expert beoordeling (zie stap 4d) kunnen uitbijters en/of reeksen 
-worden verwijderd. Dit leidt tot een nieuwe dataset (iteratie 3) waarop de 
-trendanalyse opnieuw kan worden uitgevoerd (volgens de methode van iteratie 1).
+Als de resultaten van iteratie 1 en 2 wel verschillen dan dienen de reeksen op 
+filterniveau visueel te worden beoordeeld op de aanwezigheid van uitbijters 
+in de rapportagegrens of op kunstmatige trends. Op basis van een expert 
+beoordeling (zie stap 4d) kunnen uitbijters en/of reeksen worden verwijderd.
 
 
 
@@ -482,14 +488,12 @@ Hieronder worden de stappen 4a-e, die doorlopen moeten worden beschreven:
 Herdefinieer de rapportagegrenzen op basis van bovenstaande toelichting.  
 Iteratie 1: < rapportagegrens wordt geherdefinieerd als de helft van de 
 rapportagegrens.  
-Iteratie 2: < rapportagegrens wordt geherdefinieerd als 0.  
-Iteratie 3: < rapportagegrens wordt geherdefinieerd als de helft van de 
-rapportagegrens.
+Iteratie 2: < rapportagegrens wordt geherdefinieerd als 0.
 
 ### 4.b Statistische analyse op putfilterniveau
   
 De Mann-Kendall toets voor trends wordt toegepast op putfilterniveau
-om te testen of er een (stijgende en/of dalende) trend per filter is. 
+om te testen of er een (stijgende en/of dalende) trend per put is. 
 Daarmee wordt een p-waarde per put en per stof berekend (de p-waarde 
 is een getal dat aangeeft hoe waarschijnlijk het is dat een trend in
 een put aanwezig is. Hoe lager, hoe waarschijnlijker de trend).
@@ -550,22 +554,86 @@ fdr <- res2 %>% select(p) %>% bhfdr()
 print(fdr)
 ```
 
-### 4.d Verzamelen statistieken
+### 4.d Visuele inspectie van reeksen 
+
+Iteratie 1 en 2 worden uitgevoerd om te bepalen of rapportagegrenzen (RG) van 
+invloed zijn op het resultaat. Als de resultaten van iteratie 1 en 2 verschillen 
+(bijvoorbeeld in iteratie 1 stijgend en in iteratie 2 dalend of geen trend), dan 
+worden voor die reeksen een doorrekening van 10 jaar gedaan:  
+-	Indien in de reeks metingen en/of na doorrekening 10 jaar >75% norm voorkomt, 
+dan dient een visuele inspectie te worden uitgevoerd  
+-	Indien dit niet het geval is, dan worden deze reeksen verder meegenomen alsof 
+er ‘geen trend’ is.
+
+In het geval dat een visuele inspectie moet worden uitgevoerd, moeten de 
+resultaten van beide iteraties (RG = 0,5 RG en RG = 0) bekeken en vergeleken 
+worden. o.b.v. een expert beoordeling wordt beoordeeld of 
+de berekende trend een trend is in rapportagegrenzen of dat de trend wordt 
+beïnvloed door uitbijters. Uitbijters kunnen worden verwijderd en de trend kan 
+opnieuw worden berekend. Afhankelijk van de expert beoordeling wordt de trend 
+meegenomen als ‘geen trend’ of als een ‘significante trend’. 
+
+In 'Bijlage 1 van de Werkinstructie trendanalyse algemene grondwaterkwaliteit KRW' 
+zijn een aantal voorbeelden gegeven van expert beoordeling van grafieken m.b.t. 
+de invloed van rapportagegrenzen. 
+
+
+#### Voorbeeld
+Middels onderstaand script kan voorbeeld 2 gevisualiseerd 
+worden om de invloed van uitbijters in rapportagegrenzen 
+te bekijken. De afwezigheid van een trendlijn laat zien 
+dat de trend niet significant is (pas dan wordt deze geplot). 
+
+```{r fig.width = 6, fig.height = 3, fig.align = "center"}
+
+# Rapportagegrens gelijk aan 0.5 RG
+d <- grondwaterdata %>% 
+    filter(parameter == "as", diepte == "ondiep") %>%
+  replaceDL(replaceval = 0.5)
+
+statistiek0.5 <- mktrends("17f1", d, rpDL = FALSE, make.plot = FALSE)
+figuur0.5 <- mktrends("17f1", d, rpDL = FALSE, dw.plot = FALSE, make.plot = TRUE)
+
+print(statistiek0.5)
+print(figuur0.5)
+
+# Rapportagegrens gelijk aan 0
+d <- grondwaterdata %>% 
+    filter(parameter == "as", diepte == "ondiep") %>%
+  replaceDL(replaceval = 0)
+
+statistiek0 <- mktrends("17f1", d, rpDL = FALSE, make.plot = FALSE)
+figuur0 <- mktrends("17f1", d, rpDL = FALSE, dw.plot = FALSE, make.plot = TRUE)
+
+print(statistiek0)
+print(figuur0)
+
+```
+
+Uiteindelijk dienen de verzamelde statistieken voor de 
+betreffende trendtoetsen verwerkt te worden in Tabel 5 van de 
+'*Werkinstructie trendanalyse algemene grondwaterkwaliteit KRW*'
+
+### 4.e Verzamelen statistieken
   
-Na het doorlopen van stappen 4a-4c kan een tabel worden 
+Na het doorlopen van stappen 4b, 4c en 4d kan een tabel worden 
 samengesteld waarin per stof meerdere statistieken worden 
 verzameld, zoals het percentage benoemde trends (stijgend of
 dalend), het percentage benoemde stijgende trends en het 
-percentage benoemde dalende trends. Daarnaast wordt ook het
-percentage niet-benoemde trends (stijgend of dalend) gegeven.
-In deze tabel wordt tevens de gemiddelde helling voor de 
-verschillende (benoemde en niet benoemde) trends gegeven.
+percentage benoemde dalende trends. In deze tabel worden ook de aantallen trends 
+weergegeven die eventueel afvallen na visuele beoordeling in het eindresultaat. 
+De trends worden berekend op de goedgekeurde reeksen.
 
+Daarnaast wordt in deze tabel de informatie m.b.t. de percentages van de benoemde 
+trends en de gemiddelde helling weergegeven van (1) de benoemde stijgende en 
+dalende trends, (2) de benoemde stijgende trends, (3) de benoemde dalende trends, 
+(4) de benoemde en niet-benoemde trends. De percentages van de benoemde trends 
+worden weergegeven t.o.v. het totaal aantal reeksen en het aantal goedgekeurde 
+reeksen. Voor het berekenen van deze percentages en de hellingen worden de trends 
+genomen na visuele inspectie.
   
-De resultaten van de trendtoets wordt opgenomen in tabel 5
-(zie 'werkinstructie'). Na het uitvoeren van de trendtoetsen 
-vindt een visuele inspectie op alle grafieken plaats (4e) als 
-gevolg van het vervangen van de iteraties met rapportagegrenzen. 
+De resultaten van de trendtoets wordt opgenomen in tabel 6
+(zie 'werkinstructie').
 
 De trendanalyse wordt gedaan met de functie `trendAnalyse`. 
 Hierin zitten zowel stap 4a (aanpassen RG met `replaceDL`),
@@ -609,75 +677,6 @@ knitr::kable(resultaat, digits = 2)
 
 ```
 
-### 4.e Visuele inspectie van reeksen 
-  *Invloed van rapportagegrenzen*
-Na het uitvoeren van de trendtoetsen worden de reeksen op
-putfilterniveau visueel geïnspecteerd. Hierdoor wordt 
-duidelijk:
-
-  1) Welke metingen in de reeks rapportagegrenzen zijn;
-  2) In hoeverre een rapportagegrens een uitbijter is (zie 
-  hieronder);
-  3) In hoeverre een benoemde trend kunstmatig is (zie 
-  hieronder).
-
-Uitbijters in rapportagegrenzen zijn hier gedefinieerd als 
-rapportagegrenzen die afwijkend zijn van de andere 
-rapportagegrenzen in de reeks en die het resultaat van de
-trendanalyse beïnvloeden. Met 'kunstmatige trends' bedoelen 
-we hier trends die benoemd worden maar gebaseerd zijn op 
-verschillen in de hoogte van de rapportagegrenzen in de 
-dataset. De gevonden trend is dan eigenlijk een 'trend in 
-rapportagegrenzen'.
-  
-Op basis van expert beoordeling kan besloten worden om 
-uitbijters in rapportagegrenzen te verwijderen. In het geval
-van een kunstmatige trend kan besloten worden om de benoemde
-trend te verwijderen. Deze reeksen worden dan beschouwd als
-reeksen waarin geen trend aanwezig is. In 'Bijlage 1 van de 
-Werkinstructie trendanalyse algemene grondwaterkwaliteit KRW' 
-zijn een aantal voorbeelden gegeven van expert beoordeling van
-grafieken m.b.t. de invloed van rapportagegrenzen. 
-
-
-#### Voorbeeld
-Middels onderstaand script kan voorbeeld 2 gevisualiseerd 
-worden om de invloed van uitbijters in rapportagegrenzen 
-te bekijken. De afwezigheid van een trendlijn laat zien 
-dat de trend niet significant is (pas dan wordt deze geplot). 
-
-```{r fig.width = 6, fig.height = 3, fig.align = "center"}
-
-# Rapportagegrens gelijk aan 0.5 RG
-d <- grondwaterdata %>% 
-    filter(parameter == "as", diepte == "ondiep") %>%
-  replaceDL(replaceval = 0.5)
-
-statistiek0.5 <- mktrends("17f1", d, rpDL = FALSE, make.plot = FALSE)
-figuur0.5 <- mktrends("17f1", d, rpDL = FALSE, dw.plot = FALSE, make.plot = TRUE)
-
-print(statistiek0.5)
-print(figuur0.5)
-
-# Rapportagegrens gelijk aan 0
-d <- grondwaterdata %>% 
-    filter(parameter == "as", diepte == "ondiep") %>%
-  replaceDL(replaceval = 0)
-
-statistiek0 <- mktrends("17f1", d, rpDL = FALSE, make.plot = FALSE)
-figuur0 <- mktrends("17f1", d, rpDL = FALSE, dw.plot = FALSE, make.plot = TRUE)
-
-print(statistiek0)
-print(figuur0)
-
-```
-
-
-Uiteindelijk dienen de verzamelde statistieken voor de 
-betreffende trendtoetsen verwerkt te worden in Tabel 5 van de 
-'*Werkinstructie trendanalyse algemene grondwaterkwaliteit KRW*'
-
-
 ### 4.f Verzamelen van kaartbeelden
 Aangezien grondwaterlichamen een groter gebied bestrijken die niet homogeen 
 zijn m.b.t. bodemtype, hydrologie en landgebruik, kan het lastig zijn om een
@@ -709,15 +708,15 @@ p
 
 
 ## 5: Statistische toets voor trendomkering
-In deze stap worden statistische toetsen uitgevoerd voor trendomkering
-en de bijbehorende statistiek verzamelt voor de stoffen die 
-geselecteerd zijn in stap 2. Voor het detecteren van trendomkering 
+In stap 5 wordt voor de stoffen die zijn geselecteerd in stap 2 onderzocht of 
+trendomkering aanwezig is. Voor het detecteren van trendomkering 
 wordt dezelfde procedure gevolgd als voor het detecteren van trends 
 (stap 4), met enkele uitzonderingen welke in de `Werkwijze` zijn 
-toegelicht. Het statistisch toetsen van trendomkering is erg complex. 
-Na het toepassen van de toetsen en de correctie voor vals-positieven, 
-moeten de reeksen waarin een trendomkering wordt benoemd daarom 
-*altijd* visueel geïnspecteerd worden. 
+toegelicht. Het statistisch toetsen van trendomkering is erg complex. De toets 
+die nu gebruikt wordt, is makkelijk te gebruiken. Echter de toets moet vooral 
+gezien worden als hulpmiddel. Na het toepassen van de toetsen en de correctie 
+voor vals-positieven, moeten de reeksen waarin een trendomkering wordt benoemd 
+daarom *altijd* visueel geïnspecteerd worden. 
 
 ### 5.a Trendomkering
 Met de functie `trendReversal()` wordt gekeken of er binnen een reeks
@@ -786,7 +785,6 @@ knitr::kable(resultaat, digits = 2)
 Om voor een aantal parameters of stoffen een tabel te maken kan 
 net als bij de trendanalyse een for-loop gebruikt worden:
 
-
 ```{r}
 
 resultaat <- data.frame()
@@ -807,7 +805,7 @@ knitr::kable(resultaat, digits = 2)
 
 De resultaten van stap 5 geeft een overzicht van de statistieken
 betreffende trendomkering. Deze gegevens dienen in de rapportage 
-te worden ingevuld in Tabel 6 uit de '*Werkinstructie*'.
+te worden ingevuld in Tabel 7 uit de '*Werkinstructie*'.
 
 
 ## 6: Oordeel op niveau van grondwaterlichaam
