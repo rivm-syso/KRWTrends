@@ -4,13 +4,27 @@
 \alias{mktrends}
 \title{Berekent Mann-Kendall statistiek voor enkel LMG filter}
 \usage{
-mktrends(i, x, trim = FALSE, trimfactor = 1.5, dw.plot = TRUE,
-  psig = 0.05, alter = "two.sided", rpDL = TRUE, make.plot = FALSE)
+mktrends(
+  i,
+  x,
+  minwaarnemingen = 10,
+  trim = FALSE,
+  trimfactor = 1.5,
+  dw.plot = TRUE,
+  psig = 0.05,
+  alter = "two.sided",
+  rpDL = TRUE,
+  make.plot = FALSE,
+  replacefactor = 0.5
+)
 }
 \arguments{
 \item{i}{put/filter naam waarvoor de statistiek berekend wordt}
 
 \item{x}{data.frame van lmgsubset}
+
+\item{minwaarnemingen}{minimum aantal waarnemingen waar een reeks aan moet 
+voldoen, standaard op 10.}
 
 \item{trim}{als TRUE, dan worden uitbijters verwijderd (trimmed)}
 
@@ -23,6 +37,9 @@ mktrends(i, x, trim = FALSE, trimfactor = 1.5, dw.plot = TRUE,
 \item{rpDL}{of de rapportagegrenzen aangepast moeten worden, standaard op TRUE.}
 
 \item{make.plot}{geeft een plot output in plaats van een data.frame}
+
+\item{replacefactor}{vermenigvuldigingsfactor om rapportagegrens waardes
+te vervangen}
 
 \item{trimFactor}{factor van \code{rmoutlier}}
 }

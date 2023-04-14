@@ -4,12 +4,15 @@
 \alias{trendAnalyse}
 \title{Bereken gegevens trendanalyse}
 \usage{
-trendAnalyse(d, n.reeks)
+trendAnalyse(d, n.reeks, replacefactor = 0.5)
 }
 \arguments{
 \item{d}{data.frame met grondwaterdata}
 
 \item{n.reeks}{totaal aantal reeksen van selectie}
+
+\item{replacefactor}{vermenigvuldigingsfactor om rapportagegrens waardes
+te vervangen}
 }
 \value{
 tabel met trendstatistieken
