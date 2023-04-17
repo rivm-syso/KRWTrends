@@ -4,8 +4,15 @@
 \alias{trendReversal}
 \title{Trend reversal test}
 \usage{
-trendReversal(i, x, trim = FALSE, rpDL = TRUE, trimfactor = 1.5,
-  make.plot = FALSE, dw.plot = TRUE)
+trendReversal(
+  i,
+  x,
+  trim = FALSE,
+  rpDL = TRUE,
+  trimfactor = 1.5,
+  make.plot = FALSE,
+  dw.plot = TRUE
+)
 }
 \arguments{
 \item{i}{put/filter naam waar statistiek voor berekend wordt}

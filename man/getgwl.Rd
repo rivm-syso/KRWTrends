@@ -4,7 +4,11 @@
 \alias{getgwl}
 \title{Help functie voor een lijst van de grondwaterlichamen}
 \usage{
-getgwl()
+getgwl(data = drempelwaarden)
+}
+\arguments{
+\item{data}{dataset met drempelwaardes. default is drempelwaardes dataset die
+bij het pakket zit}
 }
 \value{
 een lijst van grondwaterlichaamnamen uit de LMG dataset

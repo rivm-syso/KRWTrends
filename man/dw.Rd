@@ -4,12 +4,15 @@
 \alias{dw}
 \title{Selecteer drempelwaardes (DW)}
 \usage{
-dw(param, gwl)
+dw(param, gwl, data = drempelwaarden)
 }
 \arguments{
 \item{param}{parameter naam (als string)}
 
 \item{gwl}{grondwaterlichaam (groundwaterbody)}
+
+\item{data}{dataset met drempelwaardes. default is drempelwaardes dataset die
+bij het pakket zit}
 }
 \value{
 drempelwaarde per stof per grondwaterlichaam

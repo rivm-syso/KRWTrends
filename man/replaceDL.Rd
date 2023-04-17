@@ -7,13 +7,13 @@
 replaceDL(d, replaceval = 0.5)
 }
 \arguments{
-\item{d}{vector met waardes}
+\item{d}{grondwaterdata}
 
 \item{replaceval}{vermenigvuldigingsfactor om rapportagegrens waardes
 te vervangen}
 }
 \value{
-een vector met waardes waar de detectielimiet is vervangen
+grondwaterdata
 }
 \description{
 Help functie voor \code{lmgsubset} om waardes onder de 
@@ -26,7 +26,7 @@ Om de detectielimet te vervangen voor de helft van de
 oorspronkelijke waarde moet de vermenigvuldigingsfactor 0,5 zijn.
 }
 \examples{
-data(lmg_reeks)
-d <- replaceDL(lmg_reeks, 0.5)
+data(grondwaterdata)
+d <- replaceDL(grondwaterdata, 0.5)
 
 }
