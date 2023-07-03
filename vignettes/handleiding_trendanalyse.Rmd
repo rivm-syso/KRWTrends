@@ -60,7 +60,7 @@ is dat de kwaliteit van de data op orde is. De selectie vindt op de volgende man
   a) selecteer alle KMG putten in een grondwaterlichaam;
   b) selecteer alle ondiepe en diepe putfilters (volgens KMG aanduiding);
   c) selecteer de EU-relevante stoffen (NO3, Cd, Pb, Ni, P, Cl, As);
-  d) selecteer alle waarnemingen over de periode 1998-2018; 
+  d) selecteer alle waarnemingen over de periode 1998-2024; 
   e) herdefinieer detectieteken "<" als 1 en geen detectieteken als 0.
   
 In de achtergrondrapportage dient bovenstaande dataselectie te worden beschreven en 
@@ -109,9 +109,9 @@ parameter niet verschillen.
 *grondwaterlichaam* geeft met een identificatiecode aan in welk grondwaterlichaam 
 het putfilter zich bevindt.
 
-*verwijder* is een veld om aan te geven welke metingen gemarkeerd
-worden. Dit veld is 0 als de stof niet gemarkeerd is, iedere waarde >0
-geeft aan dat de meting is gemarkeerd.
+*verwijder* is een veld om aan te geven welke metingen afgekeurd
+worden. Dit veld is 0 als de stof niet afgekeurd is, iedere waarde >0
+geeft aan dat de meting is afgekeurd.
 
 ### Overzicht van data
 
@@ -262,8 +262,8 @@ doorlopen te worden voor de ondiepe en diepe filters:
   a) *overzicht bemonsteringsfrequentie* met een overzicht van het aantal
   putfilters met een x aantal bemonstering voor de ondiepe en diepe filters 
   (zie document werkwijze, Tabel 2) kan de geschiktheid van 
-  de dataset voor trendanalyse KRW beoordeeld worden. Markeer de 
-  putfilters die minder dan 10x (arbitrair gekozen) zijn bemonsterd.
+  de dataset voor trendanalyse KRW beoordeeld worden. De putfilters die minder 
+  dan 10x zijn bemonsterd, dienen te worden afgekeurd.
 
 Onderstaand script maakt een overzicht wat kan helpen bij Tabel 2 uit de
 werkwijze:
