@@ -299,22 +299,28 @@ ggplot(a, aes(x = n, fill = above)) +
 
 ```
 
-  b) *verdeling waarnemingen 1998-2018* van de reeksen van waarnemingen
-  per stof per putfilter dienen ten minste twee waarnemingen in de 
+  b) *verdeling waarnemingen 1998-2024* van de reeksen van waarnemingen
+  per stof per putfilter dienen ten minste een waarneming in de 
   eerste planperiode KRW te zijn gelegen (2004-2009), ten minste twee
   waarnemingen in de tweede planperiode KRW (2010-2015) en ten minste
-  één waarneming in de derde planperiode KRW (2016-2021). Markeer de 
-  reeks indien hier niet aan wordt voldaan. 
+  twee waarneming in de derde planperiode KRW (2016-2024). Als een reeks niet 
+  voldoet aan dit criterium, dient de reeks te worden afgekeurd. 
   
   Een overzicht per put kan verkregen worden met de `meetverdeling()`
   functie. Reeksen met onvoldoende verdeling in waarnemingen kunnen
-  vervolgens worden gemarkeerd. Zie onderstaand script voor een voorbeeld:
+  vervolgens worden afgekeurd. Zie onderstaand script voor een voorbeeld:
 
 ```{r}
+# Standaard periodes
 d <- grondwaterdata %>%
   filter(parameter == "no3", diepte == "ondiep", putfilter == "5f1") 
 
 resultaat <- meetverdeling(d)
+
+knitr::kable(resultaat)
+
+# Periodes met overlap
+resultaat <- meetverdeling(d, jaren_overlap = 1)
 
 knitr::kable(resultaat)
 
@@ -324,6 +330,7 @@ Door middel van een for-loop kan er voor meerdere putfilters een overzicht
 verkregen worden van de verdeling over de KRW planperiodes:
 
 ```{r}
+# Standaard periodes
 resultaat <- data.frame()
 for (i in unique(grondwaterdata$putfilter)) {
   
@@ -336,6 +343,22 @@ for (i in unique(grondwaterdata$putfilter)) {
 }
 # Voor een beter overzicht wordt de data van long naar wide format omgezet
 resultaat <- resultaat %>% spread(key = tijdsperiode, value = aantal.metingen, fill = 0)
+knitr::kable(head(resultaat))
+
+
+# Periodes met overlap
+resultaat <- data.frame()
+for (i in unique(grondwaterdata$putfilter)) {
+  
+  d <- grondwaterdata %>%
+  filter(parameter == "no3", diepte == "ondiep", putfilter == i) 
+  
+  resultaat <- resultaat %>%
+    bind_rows(data.frame(put = i, meetverdeling(d, jaren_overlap = 1),
+                         stringsAsFactors = FALSE)) 
+}
+# Voor een beter overzicht wordt de data van long naar wide format omgezet
+resultaat <- resultaat %>% spread(key = tijdsperiode, value = voldoende_metingen)
 knitr::kable(head(resultaat))
 
 ```
