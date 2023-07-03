@@ -7,8 +7,6 @@
 #' 
 #' @param i put/filter naam waarvoor de statistiek berekend wordt
 #' @param x data.frame van lmgsubset 
-#' @param minwaarnemingen minimum aantal waarnemingen waar een reeks aan moet 
-#' voldoen, standaard op 10.
 #' @param dw.plot geeft aan om de relevante drempelwaarde in de grafiek wordt geplot
 #' @param trim als TRUE, dan worden uitbijters verwijderd (trimmed)
 #' @param trimFactor factor van \code{rmoutlier}
@@ -26,7 +24,7 @@
 #' @export
 
 
-mktrends <- function(i, x, minwaarnemingen = 10, trim = FALSE, trimfactor = 1.5,
+mktrends <- function(i, x, trim = FALSE, trimfactor = 1.5,
                      dw.plot = TRUE, psig = 0.05, alter = "two.sided", 
                      rpDL = TRUE, make.plot = FALSE, replacefactor = 0.5) {
     
@@ -43,11 +41,6 @@ mktrends <- function(i, x, minwaarnemingen = 10, trim = FALSE, trimfactor = 1.5,
     
     if(rpDL) {
     d <- d %>% replaceDL(replaceval = replacefactor) 
-    }
-    
-    # wijs de reeks af als er minder dan minwaarnemingen (standaard 10) zijn 
-    if (nrow(d) < minwaarnemingen) {
-        return(NA)
     }
 
     # remove outliers

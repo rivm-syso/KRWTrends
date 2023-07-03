@@ -374,7 +374,29 @@ knitr::kable(head(resultaat))
 
 ```
 
-  c) *overzicht statistieken* maak overzicht van de statistieken van 
+  c) *aantal waarnemingen > rapportagegrens* aantal reeksen met >4 waarnemingen
+  boven rapportagegrens. Als een reeks niet voldoet aan dit criterium, dient de 
+  reeks te worden afgekeurd. 
+  
+  Een overzicht per put per stof per diepte kan verkregen worden met onderstaand 
+  voorbeeld. Reeksen met onvoldoende waarnemingen > rapportagegrens kunnen
+  vervolgens worden afgekeurd. Zie onderstaand script voor een voorbeeld:
+  
+```{r}
+# Aantal waarnemingen boven rapportagegrens
+d <- grondwaterdata %>% 
+  group_by(putfilter, parameter, diepte) %>% 
+  summarise(n_boven_rg = sum(detectielimiet == 0, na.rm = TRUE)) 
+
+# Putfilters per stof per diepte met kolom afgekeurd obv minimaal 4 waarnemingen
+resultaat <- d %>% 
+  mutate(afgekeurd_rg = n_boven_rg < 4)
+
+knitr::kable(resultaat)
+
+```
+  
+  d) *overzicht statistieken* maak overzicht van de statistieken van 
   de waarnemingen en de rapportagegrenzen in de dataset. Dit overzicht
   dient te worden gemaakt voor iedere stof per grondwaterlichaam, 
   waarvoor de trendanalyse wordt uitgevoerd. Het gaat hierbij om (1) 
@@ -433,9 +455,26 @@ trendanalyse uit te kunnen voeren. Bij het uitvoeren van de trendanalyse
 in stap 4 moet er specifiek aandacht zijn voor de invloed van 
 rapportagegrenzen. Dit wordt verder toegelicht in stap 4. De 
 informatie in tabel 3 moet worden gebruikt bij de expert beoordeling
-van reeksen van waarnemingen in stap 4c.
+van reeksen van waarnemingen in stap 4d.
 
-  d) *Selecteer de reeksen met >= 4 waarnemingen* Voor het uitvoeren
+#### *Toelichting goedkeuren en afkeuren van reeksen*
+In stap 3a, 3b en 3c worden reeksen afgekeurd op basis van het niet halen van de 
+criteria. 
+
+Het goedkeuren en afkeuren van reeksen gebeurt op basis van arbitraire 
+criteria. Met deze arbitraire criteria wordt onderscheid gemaakt in (1) 
+goedgekeurde reeksen waarvoor mogelijk trends kunnen worden benoemd op basis van 
+het aantal metingen, de verdeling in de tijd en het aantal metingen boven de 
+rapportagegrens en (2) reeksen waarvoor waarschijnlijk het aantal metingen niet 
+voldoende zijn om trends te kunnen bepalen of er te veel rapportagegrenzen 
+aanwezig zijn in een reeks.
+
+In tabel 4 wordt een overzicht gegeven van het aantal reeksen en het aantal 
+goed- en afgekeurde reeksen. Deze informatie dient in stap 4 te worden gebruikt 
+bij de interpretatie van de trendresultaten en in stap 6 bij het komen tot een 
+uitspraak op niveau van een grondwaterlichaam. 
+
+  e) *overzicht gekeurde reeksen* Voor het uitvoeren
   van de statistische toets dienen ten minste 5 metingen in een reeks
   aanwezig te zijn. Dit betekent dat de trendanalyse alleen kan worden
   uitgevoerd als er ten minste 4 waarnemingen (<RG) en 1 rapportagegrens
@@ -443,11 +482,134 @@ van reeksen van waarnemingen in stap 4c.
   de reeksen geselecteerd die aan dit criterium voldoen. Deze reeksen
   zijn goedgekeurd voor het uitvoeren van de statische toets (zie tabel 4).
   De overige reeksen worden niet meegenomen. 
+    
+  Een overzicht per put per stof per diepte kan verkregen worden met onderstaand 
+  voorbeeld. Reeksen met onvoldoende waarnemingen > rapportagegrens kunnen
+  vervolgens worden afgekeurd. Zie onderstaand script voor een voorbeeld (in het
+  voorbeeld staat meetverdeling voor meetfrequentie):
 
+```{r}
+##########################################################
+# Meetverdeling
+##########################################################
+# Standaard periodes
+resultaat <- data.frame()
+for(h in unique(grondwaterdata$grondwaterlichaam)) {
+  
+  for(i in unique(grondwaterdata$diepte)) {
+    
+    for(j in unique(grondwaterdata$parameter)) {
+      
+      for(k in unique(grondwaterdata$putfilter)) {
+        
+        d <- grondwaterdata %>%
+          filter(grondwaterlichaam == h, diepte == i, parameter == j, putfilter == k) 
+        
+        resultaat <- resultaat %>%
+          bind_rows(data.frame(grondwaterlichaam = h, diepte = i, parameter = j, putfilter = k,
+                               meetverdeling(d), stringsAsFactors = FALSE)) 
+        
+      }
+      
+    }
+    
+  }
+  
+}
+ 
+resultaat <- resultaat %>% spread(key = tijdsperiode, value = aantal.metingen, fill = 0)
+resultaat <- resultaat %>% 
+  mutate(afgekeurd_meetverdeling = ifelse(`1e planperiode KRW (2004-2009)` <1 | 
+                                            `2e planperiode KRW (2010-2015)` <2 |
+                                            `3e planperiode KRW (2016-2024)` <2,
+                                          TRUE, FALSE)) %>% 
+  select(grondwaterlichaam, putfilter, parameter, diepte, afgekeurd_meetverdeling)
+
+# Alternatief
+# Periodes jaren overlap
+resultaat <- data.frame()
+for(h in unique(grondwaterdata$grondwaterlichaam)) {
+  
+  for(i in unique(grondwaterdata$diepte)) {
+    
+    for(j in unique(grondwaterdata$parameter)) {
+      
+      for(k in unique(grondwaterdata$putfilter)) {
+        
+        d <- grondwaterdata %>%
+          filter(grondwaterlichaam == h, diepte == i, parameter == j, putfilter == k) 
+        
+        resultaat <- resultaat %>%
+          bind_rows(data.frame(grondwaterlichaam = h, diepte = i, parameter = j, putfilter = k,
+                               meetverdeling(d, jaren_overlap = 2), stringsAsFactors = FALSE)) 
+        
+      }
+      
+    }
+    
+  }
+  
+}
+ 
+resultaat <- resultaat %>% spread(key = tijdsperiode, value = voldoende_metingen)
+resultaat <- resultaat %>% 
+  mutate(afgekeurd_meetverdeling = ifelse(`1e planperiode KRW (2004-2009)` == FALSE | 
+                                            `2e planperiode KRW (2010-2015)` == FALSE |
+                                            `3e planperiode KRW (2016-2024)` == FALSE,
+                                          TRUE, FALSE)) %>% 
+  select(grondwaterlichaam, putfilter, parameter, diepte, afgekeurd_meetverdeling)
+
+##########################################################
+# Meetfrequentie
+##########################################################
+# maak overzicht van de meetfrequentie
+d <- grondwaterdata %>%
+  group_by(grondwaterlichaam, diepte, parameter) %>%
+  count(putfilter)
+
+resultaat <- d %>% 
+  mutate(afgekeurd_freq = n <10) %>% 
+  select(grondwaterlichaam, putfilter, parameter, diepte, afgekeurd_freq) %>% 
+  left_join(resultaat)
+
+##########################################################
+# Waarnemingen boven rapportagegrens
+##########################################################
+# Aantal waarnemingen boven rapportagegrens
+d <- grondwaterdata %>% 
+  group_by(grondwaterlichaam, putfilter, parameter, diepte) %>% 
+  summarise(n_boven_rg = sum(detectielimiet == 0, na.rm = TRUE)) 
+
+# Putfilters per stof per diepte met kolom afgekeurd obv minimaal 4 waarnemingen
+resultaat <- d %>% 
+  mutate(afgekeurd_rg = n_boven_rg < 4) %>% 
+  select(grondwaterlichaam, putfilter, parameter, diepte, afgekeurd_rg) %>% 
+  left_join(resultaat)
+
+##########################################################
+# Tabel 4
+##########################################################
+# Met behulp van alle resultaten wordt een kolom afgekeurd gemaakt
+putfilterselectie <- resultaat %>% 
+  mutate(afgekeurd = ifelse(afgekeurd_rg == TRUE | 
+                              afgekeurd_freq == TRUE | 
+                              afgekeurd_meetverdeling == TRUE, 
+                            TRUE, FALSE)) %>% 
+  select(grondwaterlichaam, putfilter, parameter, diepte, afgekeurd)
+
+# Overzicht zoals tabel 4 van werkwijze
+resultaat <- putfilterselectie %>% 
+  group_by(grondwaterlichaam, parameter, diepte) %>% 
+  summarise(totaal_aantal_reeksen = n(), 
+            aantal_goedgekeurde_reeksen = sum(afgekeurd == FALSE), 
+            aantal_afgekeurde_reeksen = sum(afgekeurd == TRUE))
+
+knitr::kable(resultaat, digits = 2)
+```
 
 ## 4: Statistische trendtoets
 
-In stap 4 wordt voor de reeksen die in stap 3d zijn geselecteerd de 
+In stap 4 wordt voor de reeksen die in stap 3 zijn geselecteerd de 
 trendtoets daadwerkelijk uitgevoerd. Dit is ten minste voor de grondwaterlichamen
 waarin een 75% normoverschrijding is aangetroffen (zie stap 2). 
 
@@ -466,7 +628,7 @@ rapportagegrenzen op het trendresultaat, zoals kunstmatige trends en de
 invloed van uitbijters. 
 
 Om zicht te krijgen op de invloed van rapportagegrenzen op het resultaat (zie ook
-stap 3c) dient de trendanalyse volgens iteratie 1 en 2 te worden uitgevoerd.
+stap 3d) dient de trendanalyse volgens iteratie 1 en 2 te worden uitgevoerd.
 In iteratie 1 wordt de trendtoets uitgevoerd op de dataset waarbij <
 rapportagegrens wordt geherdefinieerd als de helft van de rapportagegrens. In
 iteratie 2 wordt de trendtoets nogmaals uitgevoerd waarbij < rapportagegrens wordt
@@ -480,29 +642,6 @@ Als de resultaten van iteratie 1 en 2 wel verschillen dan dienen de reeksen op
 filterniveau visueel te worden beoordeeld op de aanwezigheid van uitbijters 
 in de rapportagegrens of op kunstmatige trends. Op basis van een expert 
 beoordeling (zie stap 4d) kunnen uitbijters en/of reeksen worden verwijderd.
-
-
-
-#### *Toelichting invloed van gemarkeerde reeksen*
-In stap 3a, 3b en 3d worden reeksen goedgekeurd en gemarkeerd op basis 
-van het niet halen van de criteria. 
-
-Het goedkeuren van reeksen (zie stap 3d) wordt gedaan op basis van het minimaal 
-benodigde aantal metingen voor een statistische toets. Dit is een hard
-criterium.
-
-Het markeren van reeksen (zie stap 3a en 3b) gebeurt op basis van arbitraire 
-criteria. Met deze arbitraire criteria wordt onderscheid gemaakt in (1) reeksen 
-waarvoor mogelijk trends kunnen worden benoemd op basis van het aantal metingen 
-en de verdeling in de tijd en (2) reeksen waarvoor waarschijnlijk het aantal
-metingen niet voldoende zijn om trends te kunnen bepalen.
-
-In tabel 4 wordt een overzicht gegeven van het aantal reeksen en het aantal 
-goed- en afgekeurde reeksen. In tabel 7 wordt een overzicht gegeven van de 
-benoemde trends in de goedgekeurde reeksen. Hierbij wordt onderscheid gemaakt in 
-gemarkeerde en niet-gemarkeerde reeksen. Deze informatie dient in stap 4 te worden 
-gebruikt bij de interpretatie van de trendresultaten en in stap 6 bij het komen 
-tot een uitspraak op niveau van een grondwaterlichaam. 
 
 
 Hieronder worden de stappen 4a-e, die doorlopen moeten worden beschreven:
@@ -554,16 +693,18 @@ grondwaterlichaam waarvan we aannemen dat er een trend aanwezig is.
 
 
 De functie `bhfdr()` berekent de Benjamini-Hochberg false discovery
-rate voor alle putfilters. Input is een vector met p-waardes van de
-Mann-Kendall statistiek. De laatste kolom van de output geeft aan of
+rate voor alle geselecteerde putfilters. Input is een vector met p-waardes van 
+de Mann-Kendall statistiek. De laatste kolom van de output geeft aan of
 de p-waardes significant zijn volgens de BH-criteria. Met de volgende 
 code wordt de functie gebruikt:
 
 ```{r}
+# Filter goedgekeurde reeksen
+d <- grondwaterdata %>% left_join(putfilterselectie) %>% filter(afgekeurd == FALSE)
 
 # selecteer data uit ondiepe filters voor NO3
-d <- grondwaterdata %>% 
-    filter(parameter == "no3", diepte == "ondiep") 
+d <- d %>% 
+    filter(parameter == "no3", diepte == "ondiep")
 
 # Bereken de Mann-Kendall statistieken voor alle put locaties
 i <- as.character(unique(d$putfilter))
@@ -674,6 +815,9 @@ d <- grondwaterdata %>%
 # Totaal aantal reeksen waarvoor trendanalyse wordt gedaan, nodig om 2 percentages te berekenen
 aantal.reeks <- paste(d$putfilter, d$parameter, sep = " - ") %>% unique %>% length()
 
+# Filteren goedgekeurde reeksen
+d <- d %>% left_join(putfilterselectie) %>% filter(afgekeurd == FALSE)
+
 resultaat <- trendAnalyse(d, n.reeks = aantal.reeks)
 knitr::kable(resultaat, digits = 2)
 ```
@@ -690,6 +834,9 @@ for (i in c("no3", "as")) {
         filter(parameter == i, diepte == "ondiep") 
     
     aantal.reeks <- paste(d$putfilter, d$parameter, sep = " - ") %>% unique %>% length()
+    
+    # Filteren goedgekeurde reeksen
+    d <- d %>% left_join(putfilterselectie) %>% filter(afgekeurd == FALSE)
     
     resultaat <- resultaat %>%
         bind_rows(data.frame(param = i, trendAnalyse(d, n.reeks = aantal.reeks),
@@ -800,6 +947,9 @@ d <- grondwaterdata %>%
 
 aantal.reeks <- paste(d$putfilter, d$parameter, sep = " - ") %>% unique %>% length()
 
+# Filteren goedgekeurde reeksen
+d <- d %>% left_join(putfilterselectie) %>% filter(afgekeurd == FALSE)
+
 resultaat <- trendomkeringAnalyse(d, n.reeks = aantal.reeks)
 
 knitr::kable(resultaat, digits = 2)
@@ -816,6 +966,9 @@ for (i in c("no3", "as")) {
     d <- grondwaterdata %>% 
         filter(parameter == i, diepte == "ondiep") 
     aantal.reeks <- paste(d$putfilter, d$parameter, sep = " - ") %>% unique %>% length()
+    
+    # Filteren goedgekeurde reeksen
+    d <- d %>% left_join(putfilterselectie) %>% filter(afgekeurd == FALSE)
     
     resultaat <- resultaat %>%
         bind_rows(data.frame(param = i, trendomkeringAnalyse(d, n.reeks = aantal.reeks),
