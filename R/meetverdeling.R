@@ -17,11 +17,11 @@
 #'    \item totaal totaal aantal metingen per put
 #' }
 #' 
-#' #' Als blijkt dat veel reeksen afvallen o.b.v. de meetverdeling dan kan ervoor 
+#' Als blijkt dat veel reeksen afvallen o.b.v. de meetverdeling dan kan ervoor 
 #' gekozen worden na te gaan of de gewenste meetverdeling wel wordt gehaald als 
 #' een jaar overlap wordt toegestaan tussen de verschillende planperiodes. Een 
 #' jaar overlap houd bijvoorbeeld in: planperiode 2004-2009 wordt periode 
-#' 2003-2010. Hetzelfde geld voor de overige periodes.
+#' 2003-2010, planperiode 2010-2015 wordt periode 2009-2016 en zo voort.
 #' 
 #' in het geval dat gekozen is voor een jaren overlap > 0 wordt in plaast van
 #' aantal metingen per plan periode en totaal aantal metingen een kolom gegeven
@@ -68,7 +68,7 @@ meetverdeling <- function(d, jaren_overlap = 0) {
     res <- data.frame(tijdsperiode = c("1e planperiode KRW (2004-2009)",
                                        "2e planperiode KRW (2010-2015)",
                                        "3e planperiode KRW (2016-2024)"),
-                      voldoende_metingen = c(all(min_p1$meetjaar %in% periode1),
+                      voldoende.metingen = c(all(min_p1$meetjaar %in% periode1),
                                              sum(d$meetjaar %in% periode2) >= 2,
                                              all(max_p3$meetjaar %in% periode3)))
     

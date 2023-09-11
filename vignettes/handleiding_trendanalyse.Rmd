@@ -310,7 +310,7 @@ ggplot(a, aes(x = n, fill = above)) +
   gekozen worden na te gaan of de gewenste meetverdeling wel wordt gehaald als 
   een jaar overlap wordt toegestaan tussen de verschillende planperiodes. Een 
   jaar overlap houd bijvoorbeeld in: planperiode 2004-2009 wordt periode 
-  2003-2010. Hetzelfde geld voor de overige periodes.
+  2003-2010, planperiode 2010-2015 wordt periode 2009-2016 en zo voort.
   
   Een overzicht per put kan verkregen worden met de `meetverdeling()`
   functie. Reeksen met onvoldoende verdeling in waarnemingen kunnen
@@ -383,6 +383,14 @@ knitr::kable(head(resultaat))
   c) *aantal waarnemingen > rapportagegrens* aantal reeksen met >4 waarnemingen
   boven rapportagegrens. Als een reeks niet voldoet aan dit criterium, dient de 
   reeks te worden afgekeurd. 
+  
+  Voor het uitvoeren van de statistische toets dienen ten minste 5 metingen in 
+  een reeks aanwezig te zijn. Dit betekent dat de trendanalyse alleen kan worden
+  uitgevoerd als er ten minste 4 waarnemingen (>RG) en 1 rapportagegrens
+  in een reeks zitten. Dit is een arbitrair criterium. Bij het overzicht van de 
+  bemonsteringsfrequentie is het minimum aantal metingen al bepaald. In deze 
+  stap worden de reeksen geselecteerd die aan het criterium van minimaal 4 
+  waarnemingen >RG voldoen.
   
   Een overzicht per put per stof per diepte kan verkregen worden met onderstaand 
   voorbeeld. Reeksen met onvoldoende waarnemingen > rapportagegrens kunnen
@@ -480,51 +488,50 @@ goed- en afgekeurde reeksen. Deze informatie dient in stap 4 te worden gebruikt
 bij de interpretatie van de trendresultaten en in stap 6 bij het komen tot een 
 uitspraak op niveau van een grondwaterlichaam. 
 
-  e) *overzicht gekeurde reeksen* Voor het uitvoeren
-  van de statistische toets dienen ten minste 5 metingen in een reeks
-  aanwezig te zijn. Dit betekent dat de trendanalyse alleen kan worden
-  uitgevoerd als er ten minste 4 waarnemingen (<RG) en 1 rapportagegrens
-  in een reeks zitten. Dit is een hard criterium. In deze stap worden
-  de reeksen geselecteerd die aan dit criterium voldoen. Deze reeksen
-  zijn goedgekeurd voor het uitvoeren van de statische toets (zie tabel 4).
-  De overige reeksen worden niet meegenomen. 
+  e) *overzicht gekeurde reeksen* maak overzicht van de goedgekeurde reeksen. Om 
+  te komen tot een overzicht van goedgekeurde reeksen moet een overzicht van het 
+  aantal metingen, de meetverdeling en het aantal metingen boven rapporatgegrens 
+  gecombineerd worden. Putten die in één of meer van de drie overzichten staan 
+  worden afgekeurd.
     
+  Een overzicht van het aantal metingen kan verkregen worden met onderstaand 
+  voorbeeld. Putten met minder dan 10 metingen worden in dit voorbeeld 
+  afgekeurd.
+  
   Een overzicht per put per stof per diepte kan verkregen worden met onderstaand 
   voorbeeld. Reeksen met onvoldoende waarnemingen > rapportagegrens kunnen
   vervolgens worden afgekeurd. Zie onderstaand script voor een voorbeeld (in het
   voorbeeld staat meetverdeling voor meetfrequentie):
 
 ```{r}
-##########################################################
-# Meetverdeling
-##########################################################
-# Standaard periodes
-resultaat <- data.frame()
-for(h in unique(grondwaterdata$grondwaterlichaam)) {
+# Overzicht Meetfrequentie
+d <- grondwaterdata %>%
+  group_by(grondwaterlichaam, diepte, parameter) %>%
+  count(putfilter)
+
+overzicht_meetfrequentie <- d %>% 
+  mutate(afgekeurd_freq = n <10) %>% 
+  select(grondwaterlichaam, putfilter, parameter, diepte, afgekeurd_freq)
+```
   
-  for(i in unique(grondwaterdata$diepte)) {
-    
-    for(j in unique(grondwaterdata$parameter)) {
-      
-      for(k in unique(grondwaterdata$putfilter)) {
-        
-        d <- grondwaterdata %>%
-          filter(grondwaterlichaam == h, diepte == i, parameter == j, putfilter == k) 
-        
-        resultaat <- resultaat %>%
-          bind_rows(data.frame(grondwaterlichaam = h, diepte = i, parameter = j, putfilter = k,
-                               meetverdeling(d), stringsAsFactors = FALSE)) 
-        
-      }
-      
-    }
-    
-  }
-  
-}
- 
-resultaat <- resultaat %>% spread(key = tijdsperiode, value = aantal.metingen, fill = 0)
-resultaat <- resultaat %>% 
+  Een overzicht van de meetverdeling kan verkregen worden met onderstaand 
+  voorbeeld. Onder normale omstandigheden moeten er 2 metingen in de 3e 
+  planperiode (2016-2024) aanwezig zijn. De voorbeeld data bevat geen metingen 
+  na 2016. Daardoor worden alle reeksen afgekeurd. Voor meer variatie in het 
+  uiteindelijke overzicht wordt daarom het voorbeeld met jaren overlap gebruikt. 
+
+```{r}
+# Overzicht Meetverdeling
+# Periodes zonder overlap
+d <- grondwaterdata %>% 
+  group_by(grondwaterlichaam, diepte, parameter, putfilter) %>% 
+  nest() %>% 
+  mutate(tijdelijk = purrr::map(data, ~meetverdeling(.))) %>% 
+  select(-data) %>% 
+  unnest(tijdelijk) %>% 
+  pivot_wider(names_from = tijdsperiode, values_from = c(aantal.metingen), values_fill = 0)
+
+overzicht_meetverdeling <- d %>% 
   mutate(afgekeurd_meetverdeling = ifelse(`1e planperiode KRW (2004-2009)` <1 | 
                                             `2e planperiode KRW (2010-2015)` <2 |
                                             `3e planperiode KRW (2016-2024)` <2,
@@ -533,68 +540,49 @@ resultaat <- resultaat %>%
 
 # Alternatief
 # Periodes jaren overlap
-resultaat <- data.frame()
-for(h in unique(grondwaterdata$grondwaterlichaam)) {
-  
-  for(i in unique(grondwaterdata$diepte)) {
-    
-    for(j in unique(grondwaterdata$parameter)) {
-      
-      for(k in unique(grondwaterdata$putfilter)) {
-        
-        d <- grondwaterdata %>%
-          filter(grondwaterlichaam == h, diepte == i, parameter == j, putfilter == k) 
-        
-        resultaat <- resultaat %>%
-          bind_rows(data.frame(grondwaterlichaam = h, diepte = i, parameter = j, putfilter = k,
-                               meetverdeling(d, jaren_overlap = 2), stringsAsFactors = FALSE)) 
-        
-      }
-      
-    }
-    
-  }
-  
-}
- 
-resultaat <- resultaat %>% spread(key = tijdsperiode, value = voldoende_metingen)
-resultaat <- resultaat %>% 
+d <- grondwaterdata %>% 
+  group_by(grondwaterlichaam, diepte, parameter, putfilter) %>% 
+  nest() %>% 
+  mutate(tijdelijk = purrr::map(data, ~meetverdeling(., jaren_overlap = 2))) %>% 
+  select(-data) %>% 
+  unnest(tijdelijk) %>% 
+  pivot_wider(names_from = tijdsperiode, values_from = c(voldoende.metingen), values_fill = 0)
+
+overzicht_meetverdeling_overlap <- d %>% 
   mutate(afgekeurd_meetverdeling = ifelse(`1e planperiode KRW (2004-2009)` == FALSE | 
                                             `2e planperiode KRW (2010-2015)` == FALSE |
                                             `3e planperiode KRW (2016-2024)` == FALSE,
                                           TRUE, FALSE)) %>% 
   select(grondwaterlichaam, putfilter, parameter, diepte, afgekeurd_meetverdeling)
+```
 
-##########################################################
-# Meetfrequentie
-##########################################################
-# maak overzicht van de meetfrequentie
-d <- grondwaterdata %>%
-  group_by(grondwaterlichaam, diepte, parameter) %>%
-  count(putfilter)
+  Een overzicht van het aantal waarnemingen boven de rapportagegrens kan 
+  verkregen worden met onderstaand voorbeeld.
 
-resultaat <- d %>% 
-  mutate(afgekeurd_freq = n <10) %>% 
-  select(grondwaterlichaam, putfilter, parameter, diepte, afgekeurd_freq) %>% 
-  left_join(resultaat)
-
-##########################################################
-# Waarnemingen boven rapportagegrens
-##########################################################
+```{r}
+# Overzicht Waarnemingen boven rapportagegrens
 # Aantal waarnemingen boven rapportagegrens
 d <- grondwaterdata %>% 
   group_by(grondwaterlichaam, putfilter, parameter, diepte) %>% 
   summarise(n_boven_rg = sum(detectielimiet == 0, na.rm = TRUE)) 
 
 # Putfilters per stof per diepte met kolom afgekeurd obv minimaal 4 waarnemingen
-resultaat <- d %>% 
+overzicht_waarnemingen_boven_rg <- d %>% 
   mutate(afgekeurd_rg = n_boven_rg < 4) %>% 
-  select(grondwaterlichaam, putfilter, parameter, diepte, afgekeurd_rg) %>% 
-  left_join(resultaat)
+  select(grondwaterlichaam, putfilter, parameter, diepte, afgekeurd_rg)
+```
 
-##########################################################
+  Een overzicht van de gekeurde reeksen kan verkregen worden met onderstaand 
+  voorbeeld. Voor het voorbeeld is het overzicht van de meetverdelinge met jaren
+  overlap gebruikt omdat dit een gevarieerder overzicht geeft.
+  
+
+```{r}
 # Tabel 4
-##########################################################
+# Samenvoegen resultaten uit de voorgaande voorbeelden
+resultaat <- left_join(overzicht_meetfrequentie, overzicht_meetverdeling_overlap) %>% 
+  left_join(., overzicht_waarnemingen_boven_rg)
+
 # Met behulp van alle resultaten wordt een kolom afgekeurd gemaakt
 putfilterselectie <- resultaat %>% 
   mutate(afgekeurd = ifelse(afgekeurd_rg == TRUE | 
