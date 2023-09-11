@@ -16,6 +16,13 @@
 #'    \item aantal.metingen aantal metingen per planperiode
 #'    \item totaal totaal aantal metingen per put
 #' }
+#' 
+#' #' Als blijkt dat veel reeksen afvallen o.b.v. de meetverdeling dan kan ervoor 
+#' gekozen worden na te gaan of de gewenste meetverdeling wel wordt gehaald als 
+#' een jaar overlap wordt toegestaan tussen de verschillende planperiodes. Een 
+#' jaar overlap houd bijvoorbeeld in: planperiode 2004-2009 wordt periode 
+#' 2003-2010. Hetzelfde geld voor de overige periodes.
+#' 
 #' in het geval dat gekozen is voor een jaren overlap > 0 wordt in plaast van
 #' aantal metingen per plan periode en totaal aantal metingen een kolom gegeven
 #' met voldoende metingen TRUE of FALSE omdat het overzicht met de indeling

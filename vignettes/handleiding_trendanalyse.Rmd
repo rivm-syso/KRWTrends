@@ -306,6 +306,12 @@ ggplot(a, aes(x = n, fill = above)) +
   twee waarneming in de derde planperiode KRW (2016-2024). Als een reeks niet 
   voldoet aan dit criterium, dient de reeks te worden afgekeurd. 
   
+  Als blijkt dat veel reeksen afvallen o.b.v. de meetverdeling dan kan ervoor 
+  gekozen worden na te gaan of de gewenste meetverdeling wel wordt gehaald als 
+  een jaar overlap wordt toegestaan tussen de verschillende planperiodes. Een 
+  jaar overlap houd bijvoorbeeld in: planperiode 2004-2009 wordt periode 
+  2003-2010. Hetzelfde geld voor de overige periodes.
+  
   Een overzicht per put kan verkregen worden met de `meetverdeling()`
   functie. Reeksen met onvoldoende verdeling in waarnemingen kunnen
   vervolgens worden afgekeurd. Zie onderstaand script voor een voorbeeld:
