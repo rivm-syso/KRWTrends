@@ -44,7 +44,7 @@ meetverdeling <- function(d, jaren_overlap = 0) {
                                                  meetjaar > 2024 ~ "Meting na 2024",
                                                  TRUE ~ "Eerdere meting")) %>%
       group_by(tijdsperiode) %>%
-      summarise(aantal.metingen = n(),
+      summarise(aantal_metingen = n(),
                 totaal = n.tot)
     
   }  
