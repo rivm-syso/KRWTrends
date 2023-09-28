@@ -13,7 +13,7 @@
 #' om te toetsen aan de verdeling van het aantal metingen, de volgende
 #' kolommen worden gegeven:
 #'  \itemize{
-#'    \item aantal.metingen aantal metingen per planperiode
+#'    \item aantal_metingen aantal metingen per planperiode
 #'    \item totaal totaal aantal metingen per put
 #' }
 #' 
