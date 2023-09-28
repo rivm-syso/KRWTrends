@@ -68,7 +68,7 @@ meetverdeling <- function(d, jaren_overlap = 0) {
     res <- data.frame(tijdsperiode = c("1e planperiode KRW (2004-2009)",
                                        "2e planperiode KRW (2010-2015)",
                                        "3e planperiode KRW (2016-2024)"),
-                      voldoende.metingen = c(all(min_p1$meetjaar %in% periode1),
+                      voldoende_metingen = c(all(min_p1$meetjaar %in% periode1),
                                              sum(d$meetjaar %in% periode2) >= 2,
                                              all(max_p3$meetjaar %in% periode3)))
     
