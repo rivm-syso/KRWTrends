@@ -529,7 +529,7 @@ d <- grondwaterdata %>%
   mutate(tijdelijk = purrr::map(data, ~meetverdeling(.))) %>% 
   select(-data) %>% 
   unnest(tijdelijk) %>% 
-  pivot_wider(names_from = tijdsperiode, values_from = c(aantal.metingen), values_fill = 0)
+  pivot_wider(names_from = tijdsperiode, values_from = c(aantal_metingen), values_fill = 0)
 
 overzicht_meetverdeling <- d %>% 
   mutate(afgekeurd_meetverdeling = ifelse(`1e planperiode KRW (2004-2009)` <1 | 
@@ -546,7 +546,7 @@ d <- grondwaterdata %>%
   mutate(tijdelijk = purrr::map(data, ~meetverdeling(., jaren_overlap = 2))) %>% 
   select(-data) %>% 
   unnest(tijdelijk) %>% 
-  pivot_wider(names_from = tijdsperiode, values_from = c(voldoende.metingen), values_fill = 0)
+  pivot_wider(names_from = tijdsperiode, values_from = c(voldoende_metingen), values_fill = 0)
 
 overzicht_meetverdeling_overlap <- d %>% 
   mutate(afgekeurd_meetverdeling = ifelse(`1e planperiode KRW (2004-2009)` == FALSE | 
