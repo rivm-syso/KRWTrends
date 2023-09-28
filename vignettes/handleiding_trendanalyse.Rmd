@@ -348,7 +348,7 @@ for (i in unique(grondwaterdata$putfilter)) {
                          stringsAsFactors = FALSE)) 
 }
 # Voor een beter overzicht wordt de data van long naar wide format omgezet
-resultaat <- resultaat %>% spread(key = tijdsperiode, value = aantal.metingen, fill = 0)
+resultaat <- resultaat %>% spread(key = tijdsperiode, value = aantal_metingen, fill = 0)
 knitr::kable(head(resultaat))
 
 
