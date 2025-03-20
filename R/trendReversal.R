@@ -73,7 +73,7 @@ trendReversal <- function(i, x, trim = FALSE, rpDL = TRUE,
     series <- na.omit(d)
     
     if(rpDL) {
-      d <- d %>% replaceDL() 
+      series <- series %>% replaceDL() 
     }
 
     min.no.years <- 5
